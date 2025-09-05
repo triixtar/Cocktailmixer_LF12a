@@ -75,13 +75,13 @@ html, body {
   top: 0;
   display: none;
 
-  .active{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-}
 
+}
+#bgLayer.active{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .popup {
   width: 800px;
   height: 400px;

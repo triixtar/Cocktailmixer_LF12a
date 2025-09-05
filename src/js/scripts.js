@@ -5,8 +5,10 @@ console.log(this.innerHTML)
 
 })
 function openPopup() {
-    document.getElementById("bgLayer").classList.add('active')
-    console.log("this:", this.innerHTML)
+    let test = document.getElementById("bgLayer")
+        test.classList.add('active')
+    console.log(test.classList)
+
 }
 
 function closePopup() {

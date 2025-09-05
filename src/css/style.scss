@@ -55,6 +55,7 @@ html, body {
 
   &:hover {
     background-color: #bbbbbb;
+    cursor: pointer;
   }
 
   span {
@@ -79,4 +80,10 @@ html, body {
     justify-content: center;
     align-items: center;
   }
+}
+
+.popup {
+  width: 800px;
+  height: 400px;
+  background: mediumvioletred;
 }

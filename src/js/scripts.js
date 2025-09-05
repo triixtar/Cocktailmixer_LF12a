@@ -6,6 +6,7 @@ console.log(this.innerHTML)
 })
 function openPopup() {
     document.getElementById("bgLayer").classList.add('active')
+    console.log("this:", this.innerHTML)
 }
 
 function closePopup() {

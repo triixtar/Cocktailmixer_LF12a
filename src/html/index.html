@@ -16,14 +16,23 @@
 <div class="main-wrapper">
 
     <div class="selectWindow">
-        <div class="drink-button">
-            <img src=https://placehold.jp/3d4070/ffffff/128x128.png alt="img">
+        <button type="button" class="drink-button" onclick="openPopup()">
+            <img class="drink-img" src=https://placehold.jp/3d4070/ffffff/128x128.png alt="img">
             <span>NAME</span>
-        </div>
+        </button>
     </div>
 
+    <div id="bgLayer">
+        <div class="popup">
+            <img class="drink-img big" src="" alt="">
 
-
+            <div>
+                <span class="drink-title"></span>
+                <span class="drink-info"></span>
+                <button type="submit">Drink bestellen</button>
+            </div>
+        </div>
+    </div>
 </div>
 <script src="../js/scripts.js"></script>
 </body>

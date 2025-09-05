@@ -8,11 +8,13 @@
     <link rel="stylesheet" href="../css/style.scss">
 </head>
 <body>
+<nav class="navbar">
+    <div class="selection">Alkoholfrei</div>
+    <div class="selection">Alkoholisch</div>
+</nav>
+
 <div class="main-wrapper">
-    <nav class="navbar">
-        <div>Alkoholfrei</div>
-        <div>Alkoholisch</div>
-    </nav>
+
     <div class="selectWindow">
         <div class="drink-button">
             <img src=https://placehold.jp/3d4070/ffffff/128x128.png alt="img">
@@ -26,35 +28,3 @@
 <script src="../js/scripts.js"></script>
 </body>
 </html>
-<style>
-    html {
-        height: 100%;
-
-    }
-
-    body {
-        min-height: 100%;
-    }
-
-    * {
-        box-sizing: border-box;
-        padding: 0;
-        margin: 0;
-    }
-
-    .main-wrapper {
-        width: 100%;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: lightcoral;
-    }
-    .drink-button{
-        height: 128px;
-        width: 128px;
-    }
-    .inactive{
-        display: none;
-    }
-</style>

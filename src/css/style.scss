@@ -71,19 +71,27 @@ html, body {
   width: 100vw;
   height: 100vh;
   background: rgba(0,0,0,0.2);
-  position: absolute;
+  position: fixed;       /* Overlay fixiert über gesamte Viewport-Fläche */
   top: 0;
-  display: none;
-
-
+  left: 0;
+  z-index: 9999;         /* Über alles legen */
+  display: none;         /* Start: unsichtbar */
 }
+
 #bgLayer.active{
-  display: flex;
+  display: flex;         /* Aktiv: zentrieren */
   justify-content: center;
   align-items: center;
 }
+
 .popup {
   width: 800px;
   height: 400px;
   background: mediumvioletred;
+
+  display: none;         /* Standard: alle Popups verstecken */
+}
+
+.popup.active {
+  display: block;        /* Nur das aktive Popup zeigen */
 }

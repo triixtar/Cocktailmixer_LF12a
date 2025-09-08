@@ -16,14 +16,19 @@
 <div class="main-wrapper">
 
     <div class="selectWindow">
-        <button type="button" class="drink-button" onclick="openPopup()">
+        <button type="button" class="drink-button" data-action="drinkPopup">
+            <img class="drink-img" src=https://placehold.jp/3d4070/ffffff/128x128.png alt="img">
+            <span>NAME</span>
+        </button>
+<!--        platzhalter klasse-->
+        <button type="button" class="drink-button" data-action="adminPopup">
             <img class="drink-img" src=https://placehold.jp/3d4070/ffffff/128x128.png alt="img">
             <span>NAME</span>
         </button>
     </div>
 
     <div id="bgLayer">
-        <div class="popup">
+        <div class="popup popup-drink">
             <img class="drink-img big" src="" alt="">
 
             <div>
@@ -33,7 +38,19 @@
             </div>
             <button type="button" onclick="closePopup()">debug close popup</button>
         </div>
+
+        <div class="popup popup-pin">
+            <span>Enter Pin</span>
+            <div class="numpad">
+                numpad
+            </div>
+            <button type="button" onclick="closePopup()">debug close popup</button>
+        </div>
     </div>
+
+
+
+
 </div>
 <script src="../js/scripts.js"></script>
 </body>

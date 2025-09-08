@@ -11,7 +11,7 @@ class CocktailDatabase:
             'Orangensaft': 4, 'Ananassaft': 5, 'Gernadine': 6, 'Kokossyrup': 7,
             'Tonic': 8, 'Havana': 9, 'Bacardi Hell': 10, 'Vodka': 11,  # ← Leerzeichen!
             'Gin': 12, 'Tequilla': 13, 'Pitu': 14, 'Whisky': 15,
-            'Limete': 16, 'Rohrzucker': 17, 'Minze': 18
+            'Limette': 16, 'Rohrzucker': 17, 'Minze': 18
         }
         
         self._check_database_exists()

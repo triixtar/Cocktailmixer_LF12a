@@ -10,33 +10,36 @@
 <body>
 <nav class="navbar">
     <div class="selection">Alkoholfrei</div>
+    <div class="line"></div>
     <div class="selection">Alkoholisch</div>
 </nav>
 
 <div class="main-wrapper">
 
-    <div class="selectWindow">
+    <div class="select-window">
         <button type="button" class="drink-button" data-action="drinkPopup">
-            <img class="drink-img" src=https://placehold.jp/3d4070/ffffff/128x128.png alt="img">
+            <img class="drink-img" src="https://placehold.jp/3d4070/ffffff/128x128.png" alt="img">
             <span>NAME</span>
         </button>
 <!--        platzhalter klasse-->
         <button type="button" class="drink-button" data-action="adminPopup">
-            <img class="drink-img" src=https://placehold.jp/3d4070/ffffff/128x128.png alt="img">
+            <img class="drink-img" src="https://placehold.jp/3d4070/ffffff/128x128.png" alt="img">
             <span>NAME</span>
         </button>
     </div>
 
     <div id="bgLayer">
         <div class="popup popup-drink">
-            <img class="drink-img big" src="" alt="">
+            <div class="image-wrap">
+                <img class="drink-img big" src="https://placehold.jp/3d4070/ffffff/128x128.png" alt="">
+            </div>
 
-            <div>
-                <span class="drink-title"></span>
-                <span class="drink-info"></span>
+            <div class="drink-info">
+                <span class="drink-title">Beispieltitel</span>
+                <span class="drink-description">lorem ipsum samsan orem leral lorem ipsum samsan orem leral lorem ipsum samsan orem leral.</span>
                 <button type="submit">Drink bestellen</button>
             </div>
-            <button type="button" onclick="closePopup()">debug close popup</button>
+            <button style="position: absolute; top: 0; right: 0;" type="button" onclick="closePopup()">debug close popup</button>
         </div>
 
         <div class="popup popup-pin">

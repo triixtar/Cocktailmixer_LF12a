@@ -73,22 +73,7 @@ class PumpController:
             t.start()
         
         for t in threads:
-            t.join  # wait for every thread to finish
-
-        """
-        for ingredient in recipe:
-            pump_id = ingredient['pump_id']
-            amount = ingredient['amount_ml']
-            ingredient_name = ingredient['ingredient_name']
-            
-            print(f"  → {ingredient_name}: {amount}ml")
-            if not self.run_pump(pump_id, amount):
-                self.is_mixing = False
-                return False
-            time.sleep(0.5)
-        
-        self.is_mixing = False
-        """
+            t.join()  # wait for every thread to finish
 
         print("✅ Cocktail fertig!")
         return True

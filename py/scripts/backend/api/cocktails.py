@@ -10,7 +10,7 @@ pump_controller = PumpController()
 
 @cocktails_bp.route('/cocktails', methods=['GET'])
 def get_cocktails():
-    """Verfügbare Cocktails - optional gefiltert nach Alkohol"""
+    """Verfügbare Cocktails - mit manuellen Schritten"""
     alkohol_filter = request.args.get('alkoholisch')
     
     if alkohol_filter == 'true':
@@ -22,93 +22,108 @@ def get_cocktails():
         
     return jsonify(cocktails)
 
-@cocktails_bp.route('/cocktails/alcoholic', methods=['GET'])
-def get_alcoholic_cocktails():
-    """Nur alkoholische Cocktails"""
-    cocktails = db.get_alcoholic_cocktails()
-    return jsonify(cocktails)
+@cocktails_bp.route('/ingredients', methods=['GET'])  # Neuer Endpoint
+def get_ingredients():
+    """Status aller Zutaten (ersetzt /bottles)"""
+    ingredients = db.get_ingredients_status()
+    return jsonify(ingredients)
 
-@cocktails_bp.route('/cocktails/non-alcoholic', methods=['GET'])
-def get_non_alcoholic_cocktails():
-    """Nur alkoholfreie Cocktails"""
-    cocktails = db.get_non_alcoholic_cocktails()
-    return jsonify(cocktails)
-
-@cocktails_bp.route('/bottles', methods=['GET'])
-def get_bottles():
-    """Status aller Flaschen"""
-    bottles = db.get_bottles_status()
-    return jsonify(bottles)
-
-@cocktails_bp.route('/bottles/set', methods=['POST'])
-def set_bottle_volume():
-    """Flascheninhalt auf bestimmte ML setzen
+@cocktails_bp.route('/ingredients/set', methods=['POST'])
+def set_ingredient_level():
+    """Zutat auf bestimmten Level setzen
     
-    POST JSON: {"pump_id": 0, "volume": 500}
+    POST JSON: {"ingredient_id": 1, "level": 500}
     """
     data = request.get_json()
-    pump_id = data.get('pump_id')
-    volume = data.get('volume')
+    ingredient_id = data.get('ingredient_id')
+    level = data.get('level')
     
-    if pump_id is None or volume is None:
-        return jsonify({'error': 'pump_id und volume sind erforderlich'}), 400
+    if ingredient_id is None or level is None:
+        return jsonify({'error': 'ingredient_id und level sind erforderlich'}), 400
     
-    if not isinstance(pump_id, int) or not isinstance(volume, (int, float)):
-        return jsonify({'error': 'pump_id muss int und volume muss Zahl sein'}), 400
+    if not isinstance(ingredient_id, int) or not isinstance(level, (int, float)):
+        return jsonify({'error': 'ingredient_id und level müssen Zahlen sein'}), 400
     
-    if pump_id < 0 or pump_id > 18:  # ← Korrigiert: 19 Pumpen (0-18)
-        return jsonify({'error': 'pump_id muss zwischen 0 und 18 liegen'}), 400
+    if ingredient_id < 1 or ingredient_id > 19:
+        return jsonify({'error': 'ingredient_id muss zwischen 1 und 19 liegen'}), 400
     
-    if volume < 0:
-        return jsonify({'error': 'volume darf nicht negativ sein'}), 400
+    if level < 0:
+        return jsonify({'error': 'level darf nicht negativ sein'}), 400
     
-    db.set_bottle_volume(pump_id, volume)
+    db.set_ingredient_level(ingredient_id, level)
     return jsonify({
         'success': True,
-        'pump_id': pump_id,
-        'new_volume': volume,
-        'message': f'Flasche {pump_id} auf {volume}ml gesetzt'
+        'ingredient_id': ingredient_id,
+        'new_level': level,
+        'message': f'Zutat {ingredient_id} auf {level}ml gesetzt'
     })
 
-@cocktails_bp.route('/bottles/refill', methods=['POST'])
-def refill_bottle():
-    """Flasche additiv auffüllen
+@cocktails_bp.route('/ingredients/refill', methods=['POST'])
+def refill_ingredient():
+    """Zutat additiv auffüllen
     
-    POST JSON: {"pump_id": 0, "volume": 200}
-    -> Fügt 200ml zur aktuellen Menge hinzu
+    POST JSON: {"ingredient_id": 1, "amount": 200}
     """
     data = request.get_json()
-    pump_id = data.get('pump_id')
-    add_volume = data.get('volume')
+    ingredient_id = data.get('ingredient_id')
+    add_amount = data.get('amount')
     
-    if pump_id is None or add_volume is None:
-        return jsonify({'error': 'pump_id und volume sind erforderlich'}), 400
+    if ingredient_id is None or add_amount is None:
+        return jsonify({'error': 'ingredient_id und amount sind erforderlich'}), 400
     
-    if not isinstance(pump_id, int) or not isinstance(add_volume, (int, float)):
-        return jsonify({'error': 'pump_id und volume müssen Zahlen sein'}), 400
+    if not isinstance(ingredient_id, int) or not isinstance(add_amount, (int, float)):
+        return jsonify({'error': 'ingredient_id und amount müssen Zahlen sein'}), 400
     
-    if pump_id < 0 or pump_id > 18:  # ← Korrigiert: 19 Pumpen (0-18)
-        return jsonify({'error': 'pump_id muss zwischen 0 und 18 liegen'}), 400
+    if ingredient_id < 1 or ingredient_id > 19:
+        return jsonify({'error': 'ingredient_id muss zwischen 1 und 19 liegen'}), 400
     
-    success = db.refill_bottle(pump_id, add_volume)
+    success = db.refill_ingredient(ingredient_id, add_amount)
     if not success:
-        return jsonify({'error': f'Pumpe {pump_id} nicht gefunden'}), 404
+        return jsonify({'error': f'Zutat {ingredient_id} nicht gefunden'}), 404
     
-    # Neues Volumen für Response abrufen
-    bottles = db.get_bottles_status()
-    bottle = next((b for b in bottles if b['pump_id'] == pump_id), None)
+    # Neuen Level für Response abrufen
+    ingredients = db.get_ingredients_status()
+    ingredient = next((i for i in ingredients if i['ingredient_id'] == ingredient_id), None)
     
     return jsonify({
         'success': True,
-        'pump_id': pump_id,
-        'added_volume': add_volume,
-        'new_total': bottle['current_volume_ml'] if bottle else 0,
-        'message': f'Flasche {pump_id}: +{add_volume}ml hinzugefügt'
+        'ingredient_id': ingredient_id,
+        'added_amount': add_amount,
+        'new_level': ingredient['current_level'] if ingredient else 0,
+        'message': f'Zutat {ingredient_id}: +{add_amount}ml hinzugefügt'
     })
+
+@cocktails_bp.route('/ingredients/refill_all', methods=['POST'])
+def refill_all_ingredients():
+    """Alle Zutaten auf bestimmten Level setzen
+    
+    POST JSON: {"level": 2000} (optional, Standard: 2000)
+    """
+    data = request.get_json() or {}
+    level = data.get('level', 2000)  # Standard: 2000ml
+    
+    if not isinstance(level, (int, float)) or level < 0:
+        return jsonify({'error': 'level muss eine positive Zahl sein'}), 400
+    
+    updated_count = db.refill_all_ingredients(level)
+    
+    if updated_count > 0:
+        # Neuen Status aller Zutaten abrufen
+        ingredients = db.get_ingredients_status()
+        
+        return jsonify({
+            'success': True,
+            'level_set': level,
+            'updated_count': updated_count,
+            'ingredients_status': ingredients,
+            'message': f'Alle {updated_count} Zutaten auf {level}ml gesetzt'
+        })
+    else:
+        return jsonify({'error': 'Keine Zutaten gefunden oder Update fehlgeschlagen'}), 404
 
 @cocktails_bp.route('/order', methods=['POST'])
 def order_cocktail():
-    """Cocktail bestellen und mixen"""
+    """Cocktail bestellen und mixen - mit manuellen Schritten"""
     data = request.get_json()
     cocktail_id = data.get('cocktail_id')
     
@@ -117,19 +132,29 @@ def order_cocktail():
         return jsonify({'error': 'Cocktail nicht verfügbar'}), 400
 
     def mix_in_background():
-        success = pump_controller.mix_cocktail(cocktail['recipe'], cocktail['name'])
+        # Nur die flüssigen Zutaten pumpen
+        success = pump_controller.mix_cocktail(cocktail['liquid_recipe'], cocktail['name'])
         if success:
-            for ingredient in cocktail['recipe']:
-                db.update_bottle_volume(ingredient['pump_id'], ingredient['amount_ml'])
+            # Level der flüssigen Zutaten reduzieren
+            for ingredient in cocktail['liquid_recipe']:
+                db.update_ingredient_level(ingredient['ingredient_id'], ingredient['amount_ml'])
 
     threading.Thread(target=mix_in_background).start()
     
-    return jsonify({
+    response = {
         'status': 'mixing',
         'cocktail': cocktail['name'],
         'alkoholisch': cocktail['alkoholisch'],
-        'volume': f"{cocktail['glass_size_ml']}ml"
-    })
+        'volume': f"{cocktail['glass_size_ml']}ml",
+        'liquid_ingredients': cocktail['liquid_recipe'],  # Was gepumpt wird
+        'manual_steps': cocktail['manual_ingredients'] if cocktail['requires_manual_steps'] else []
+    }
+    
+    if cocktail['requires_manual_steps']:
+        response['message'] = 'Cocktail wird gemischt. Bitte folgende Zutaten manuell hinzufügen:'
+        response['instructions'] = [step['instruction'] for step in cocktail['manual_ingredients']]
+    
+    return jsonify(response)
 
 @cocktails_bp.route('/status', methods=['GET'])
 def get_status():
@@ -145,7 +170,7 @@ def get_status():
         'non_alcoholic_cocktails': non_alcoholic
     })
 
-@cocktails_bp.route('/test-pump/<int:pump_id>', methods=['POST'])  # ← Korrigiert
+@cocktails_bp.route('/test-pump/<int:pump_id>', methods=['POST'])
 def test_pump(pump_id):
     """Einzelne Pumpe testen"""
     success = pump_controller.test_pump(pump_id)

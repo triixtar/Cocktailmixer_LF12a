@@ -1,4 +1,5 @@
 import time
+import threading
 
 class PumpController:
     def __init__(self):
@@ -60,6 +61,21 @@ class PumpController:
         self.is_mixing = True
         print(f"🍸 Mixe Cocktail: {cocktail_name}")
         
+        threads = []
+        for ingredient in recipe:
+            pump_id = ingredient['pump_id']
+            amount = ingredient['amount_ml']
+            ingredient_name = ingredient['ingredient_name']
+            
+            print(f"  → {ingredient_name}: {amount}ml")
+            t = threading.Thread(target=self.run_pump, args=(pump_id, amount))
+            threads.append(t)
+            t.start()
+        
+        for t in threads:
+            t.join  # wait for every thread to finish
+
+        """
         for ingredient in recipe:
             pump_id = ingredient['pump_id']
             amount = ingredient['amount_ml']
@@ -72,6 +88,8 @@ class PumpController:
             time.sleep(0.5)
         
         self.is_mixing = False
+        """
+
         print("✅ Cocktail fertig!")
         return True
 

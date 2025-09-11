@@ -14,10 +14,25 @@ document.querySelectorAll("button[data-action]").forEach(button => {
     });
 });
 
+async function getData() {
+    const url = "http://127.0.0.1:5000/api/ingredients";
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log(result);
+    } catch (error) {
+        console.error(error.message);
+    }
+}
+getData()
+
 function openPopup(type) {
     const bgLayer = document.getElementById("bgLayer");
     const popups = bgLayer.querySelectorAll(".popup");
-
     popups.forEach(p => p.classList.remove("active"));
     bgLayer.classList.add("active");
 

@@ -13,7 +13,7 @@ html, body {
 }
 
 .navbar {
-  background-color: lightblue;
+  border-bottom: 2px solid white;
   position: fixed;
   width: 100%;
   display: flex;
@@ -23,22 +23,25 @@ html, body {
   height: 100%;
 
   .selection {
-    background-color: greenyellow;
-    padding: 20px 20px;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
+    color: white;
     font-size: 24px;
     text-align: center;
 
     &:hover {
-      background-color: yellow;
+      background-color: #484848;
       cursor: pointer;
     }
   }
 
   .line {
-    width: 1px;
+    width: 2px;
     height: 100%;
-    background-color: black;
+    background-color: white;
   }
 }
 
@@ -48,8 +51,29 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: lightcoral;
+  background: #000000;
+  background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 37%, rgba(54, 54, 54, 1) 100%);
+
+  .admin-btn {
+   position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: red;
+    border-radius: 8px;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: none;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
 }
+
 /*** SELECT WINDOW ***/
 
 .select-window {
@@ -111,7 +135,7 @@ html, body {
   bottom: 0;
   width: 800px;
   height: 400px;
-  background: #ffc29b;
+  background: #1f1f1f;
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   display: none;
@@ -128,9 +152,10 @@ html, body {
     border: 1px solid #484848;
     padding: 8px 12px;
     background: transparent;
+    color: white;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.2);
       cursor: pointer;
     }
 
@@ -161,21 +186,21 @@ html, body {
 
     .drink-title {
       font-weight: bold;
-      color: black;
+      color: white;
       font-size: 24px;
       margin-bottom: 6px;
     }
 
     .drink-description {
       font-weight: normal;
-      color: #626262;
+      color: #cecece;
       font-size: 18px;
       max-width: 300px;
       height: 100%;
       max-height: 115px;
       //background-color: brown;
       margin-bottom: 24px;
-      border: 1px dotted black;
+      //border: 1px dotted black;
     }
 
     button {

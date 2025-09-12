@@ -10,6 +10,7 @@ html, body {
   font-family: 'Montserrat', sans-serif;
   font-size: 16px;
   font-weight: 600;
+  user-select: none;
 }
 
 .navbar {
@@ -94,6 +95,7 @@ html, body {
   border: 1px solid lightgray;
   border-radius: 12px;
   background-color: #a8a8a8;
+  user-select: none;
 
   &:hover {
     background-color: #bbbbbb;
@@ -102,6 +104,11 @@ html, body {
 
   .drink-img {
     border-radius: 12px;
+    user-select: none;
+
+    img {
+      user-select: none;
+    }
   }
 
   span {

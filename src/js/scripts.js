@@ -29,6 +29,28 @@ async function getData() {
     }
 }
 getData()
+async function orderCocktail(cocktailId) {
+    const url = "http://127.0.0.1:5000/order";
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ cocktail_id: cocktailId })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Response status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Order Response:", result);
+
+    } catch (error) {
+        console.error("Order failed:", error.message);
+    }
+}
 
 function openPopup(type) {
     const bgLayer = document.getElementById("bgLayer");

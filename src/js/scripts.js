@@ -109,13 +109,9 @@ bgLayer.addEventListener("click", (event) => {
         if (d) add(d);
     });
 
-    // Hook: hier definierst du, was nach 4 Ziffern passieren soll
     function onPinComplete(code) {
         // TODO: prüfe hier gegen Backend / Konfiguration
         console.log('PIN eingegeben:', code);
-        // Beispiel: Popups schließen + weiter
-        // closePopup();
-        // doSomething();
     }
 })();
 

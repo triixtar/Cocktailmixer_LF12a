@@ -55,7 +55,7 @@ html, body {
   background: radial-gradient(circle, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 37%, rgba(54, 54, 54, 1) 100%);
 
   .admin-btn {
-   position: absolute;
+    position: absolute;
     top: 15px;
     right: 15px;
     background-color: red;
@@ -78,7 +78,7 @@ html, body {
 
 .select-window {
   display: flex;
-  gap: 12px;
+  gap: 32px;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -93,7 +93,7 @@ html, body {
   padding: 20px 32px;
   border: 1px solid lightgray;
   border-radius: 12px;
-  background-color: #dadada;
+  background-color: #a8a8a8;
 
   &:hover {
     background-color: #bbbbbb;
@@ -120,12 +120,12 @@ html, body {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999;         /* Über alles legen */
-  display: none;         /* Start: unsichtbar */
+  z-index: 9999; /* Über alles legen */
+  display: none; /* Start: unsichtbar */
 }
 
-#bgLayer.active{
-  display: flex;         /* Aktiv: zentrieren */
+#bgLayer.active {
+  display: flex; /* Aktiv: zentrieren */
   justify-content: center;
   align-items: center;
 }
@@ -143,6 +143,7 @@ html, body {
   gap: 24px;
   box-shadow: 0 0 15px 5px #000000;
   overflow: hidden;
+  color: white;
 
   .close-btn {
     position: absolute;
@@ -218,8 +219,82 @@ html, body {
     }
   }
 
-}
+  /* ----- PIN Popup (scoped) ----- */
+  &.popup-pin {
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    justify-items: center;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    //background-color: #550aa6;
 
+    .pin-title {
+      font-weight: 600;
+      opacity: .9;
+      margin-bottom: 16px;
+    }
+
+    .pin-dots {
+      display: flex;
+      gap: 24px;
+      margin-bottom: 32px;
+
+      .dot {
+        width: 48px;
+        height: 48px;
+        border-radius: 999px;
+        border: 2px solid rgba(255, 255, 255, .35);
+        background: transparent;
+        transition: .15s ease;
+
+        &.filled {
+          background-color: rgba(255, 255, 255, .35);
+        }
+      }
+    }
+    .numpad-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)); /* <= max 3 pro Reihe */
+      gap: 16px;
+      width: 100%;
+      overflow: hidden;
+      padding-bottom: 4px;
+
+      .key {
+        appearance: none;
+        border: 0;
+        border-radius: 12px;
+        padding: 12px 0;
+        min-width: 44px; /* touch target */
+        font-weight: 700;
+        cursor: pointer;
+        background: rgba(255, 255, 255, .08);
+        color: inherit;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12);
+
+        &:active {
+          transform: translateY(1px);
+          filter: brightness(.95);
+        }
+      }
+      .key[data-key="0"] { grid-column: 2; }
+    }
+
+    /* Screenreader utility (wenn nicht vorhanden) */
+    .sr-only {
+      position: absolute !important;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  }
+}
 .popup.active {
-  display: flex;        /* Nur das aktive Popup zeigen */
+  display: flex; /* Nur das aktive Popup zeigen */
 }

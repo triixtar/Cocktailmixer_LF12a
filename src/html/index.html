@@ -46,13 +46,31 @@
             <button class="close-btn" type="button" onclick="closePopup()">X</button>
         </div>
 
-        <div class="popup popup-pin">
-            <span>Enter Pin</span>
-            <div class="numpad">
-                numpad
+        <div class="popup popup-pin" id="pinPopup">
+            <span class="pin-title">PIN eingeben</span>
+
+            <div class="pin-dots" aria-hidden="true">
+                <span class="dot" data-idx="0"></span>
+                <span class="dot" data-idx="1"></span>
+                <span class="dot" data-idx="2"></span>
+                <span class="dot" data-idx="3"></span>
             </div>
-            <button type="button" class="close-btn" onclick="closePopup()">X</button>
+
+            <div class="numpad-row" role="group" aria-label="Ziffernblock">
+                <button class="key" data-key="1">1</button>
+                <button class="key" data-key="2">2</button>
+                <button class="key" data-key="3">3</button>
+                <button class="key" data-key="4">4</button>
+                <button class="key" data-key="5">5</button>
+                <button class="key" data-key="6">6</button>
+                <button class="key" data-key="7">7</button>
+                <button class="key" data-key="8">8</button>
+                <button class="key" data-key="9">9</button>
+                <button class="key" data-key="0">0</button>
+            </div>
+            <button class="close-btn" type="button" onclick="closePopup()">X</button>
         </div>
+
     </div>
 
 

@@ -73,3 +73,49 @@ bgLayer.addEventListener("click", (event) => {
         closePopup();
     }
 });
+
+// PIN Logik
+(function () {
+    const MAX = 4;
+    const popup = document.getElementById('pinPopup');
+    if (!popup) return;
+
+    const dots = Array.from(popup.querySelectorAll('.dot'));
+    const input = popup.querySelector('#pinInput');
+    const row = popup.querySelector('.numpad-row');
+
+    let pin = '';
+
+    const update = () => {
+        dots.forEach((d, i) => d.classList.toggle('filled', i < pin.length));
+        if (input) input.value = pin;
+        if (pin.length === MAX) onPinComplete(pin);
+    };
+
+    const add = (d) => {
+        if (pin.length >= MAX) return;
+        pin += d;
+        update();
+    };
+
+    // optional „Korrigieren“: auf die Punkte tippen = ein Zeichen löschen
+    const backspace = () => { if (pin) { pin = pin.slice(0, -1); update(); } };
+    popup.querySelector('.pin-dots')?.addEventListener('click', backspace);
+
+    row.addEventListener('click', (e) => {
+        const btn = e.target.closest('.key');
+        if (!btn) return;
+        const d = btn.getAttribute('data-key');
+        if (d) add(d);
+    });
+
+    // Hook: hier definierst du, was nach 4 Ziffern passieren soll
+    function onPinComplete(code) {
+        // TODO: prüfe hier gegen Backend / Konfiguration
+        console.log('PIN eingegeben:', code);
+        // Beispiel: Popups schließen + weiter
+        // closePopup();
+        // doSomething();
+    }
+})();
+

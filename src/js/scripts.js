@@ -113,5 +113,59 @@ bgLayer.addEventListener("click", (event) => {
         // TODO: prüfe hier gegen Backend / Konfiguration
         console.log('PIN eingegeben:', code);
     }
+
+    async function loadCocktails() {
+        const url = "http://127.0.0.1:5000/api/cocktails";
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Response status: ${response.status}`);
+            }
+
+            const cocktails = await response.json();
+            console.log("Cocktails:", cocktails);
+
+            const list = document.getElementById("cocktailList");
+            list.innerHTML = "";
+
+            cocktails.forEach(cocktail => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.classList.add("drink-button");
+                btn.dataset.action = "drinkPopup";
+                btn.onclick = () => openCocktailPopup(cocktail);
+
+                btn.innerHTML = `
+                <img class="drink-img" draggable="false" 
+                     src="${cocktail.image_url || 'https://placehold.jp/3d4070/ffffff/128x128.png'}" 
+                     alt="${cocktail.name}">
+                <span>${cocktail.name}</span>
+            `;
+
+                list.appendChild(btn);
+            });
+
+        } catch (error) {
+            console.error("Fehler beim Laden der Cocktails:", error.message);
+        }
+    }
+    function openCocktailPopup(cocktail) {
+        const bgLayer = document.getElementById("bgLayer");
+        const popup = bgLayer.querySelector(".popup-drink");
+
+        // Inhalte setzen
+        popup.querySelector(".drink-img.big").src = cocktail.image_url || "https://placehold.jp/3d4070/ffffff/128x128.png";
+        popup.querySelector(".drink-title").textContent = cocktail.name;
+        popup.querySelector(".drink-description").textContent = cocktail.description || "Keine Beschreibung verfügbar.";
+
+        // Bestell-Button aktualisieren
+        const orderBtn = popup.querySelector("button[onclick]");
+        orderBtn.onclick = () => orderCocktail(cocktail.id);
+
+        // Popup öffnen
+        openPopup("drink");
+    }
+    loadCocktails();
+
 })();
 

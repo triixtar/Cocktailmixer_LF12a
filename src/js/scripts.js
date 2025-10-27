@@ -73,13 +73,15 @@ function closePopup() {
     popups.forEach(p => p.classList.remove("active"));
     bgLayer.classList.remove("active");
 }
+if(document.getElementById("bgLayer")){
+    const bgLayer = document.getElementById("bgLayer");
+    bgLayer.addEventListener("click", (event) => {
+        if (event.target === bgLayer) {
+            closePopup();
+        }
+    });
+}
 
-const bgLayer = document.getElementById("bgLayer");
-bgLayer.addEventListener("click", (event) => {
-    if (event.target === bgLayer) {
-        closePopup();
-    }
-});
 
 // PIN Logik
 (function () {

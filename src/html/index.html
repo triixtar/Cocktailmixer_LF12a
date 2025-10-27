@@ -10,17 +10,22 @@
 </head>
 <body>
 <nav class="navbar">
-    <div class="selection">Alkoholfrei</div>
-    <div class="line"></div>
-    <div class="selection">Alkoholisch</div>
+    <div>
+        <button type="button" style="opacity: 0; right: 5em;" class="admin-btn"><img draggable="false" src="../icons/settings.svg" alt=""></button>
+    </div>
+    <div class="content">
+        <div class="selection">Alkoholfreie Getränke</div>
+        <div class="line"></div>
+        <div class="selection">Alkoholische Getränke</div>
+    </div>
+    <div>
+        <button type="button" class="admin-btn"><img draggable="false" src="../icons/settings.svg" alt=""></button>
+    </div>
 </nav>
 
 <div class="main-wrapper">
 
     <div class="select-window" id="cocktailList"></div>
-
-
-    <button type="button" class="admin-btn"><img draggable="false" src="../icons/settings.svg" alt=""></button>
 
     <div id="bgLayer">
         <div class="popup popup-drink">
@@ -51,14 +56,21 @@
                 <button class="key" data-key="1">1</button>
                 <button class="key" data-key="2">2</button>
                 <button class="key" data-key="3">3</button>
+
                 <button class="key" data-key="4">4</button>
                 <button class="key" data-key="5">5</button>
                 <button class="key" data-key="6">6</button>
+
                 <button class="key" data-key="7">7</button>
                 <button class="key" data-key="8">8</button>
                 <button class="key" data-key="9">9</button>
+
+                <button style="opacity: 0" class="key close">X</button>
                 <button class="key" data-key="0">0</button>
+                <button class="key back">←</button>
+
             </div>
+
             <button class="close-btn" type="button" onclick="closePopup()">X</button>
         </div>
 
@@ -69,5 +81,17 @@
 
 </div>
 <script src="../js/scripts.js"></script>
+<script>
+    const selections = document.querySelectorAll('.selection');
+
+    selections.forEach(sel => {
+        sel.addEventListener('click', () => {
+            selections.forEach(s => s.classList.remove('active'));
+            sel.classList.add('active');
+        });
+    });
+
+
+</script>
 </body>
 </html>

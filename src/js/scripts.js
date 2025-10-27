@@ -55,15 +55,22 @@ async function orderCocktail(cocktailId) {
 function openPopup(type) {
     const bgLayer = document.getElementById("bgLayer");
     const popups = bgLayer.querySelectorAll(".popup");
+
     popups.forEach(p => p.classList.remove("active"));
+
     bgLayer.classList.add("active");
 
     const popup = bgLayer.querySelector(`.popup-${type}`);
-    if (popup) popup.classList.add("active");
+    if (popup) {
+        popup.classList.add("active");
+    }
 }
 
 function closePopup() {
     const bgLayer = document.getElementById("bgLayer");
+    const popups = bgLayer.querySelectorAll(".popup");
+
+    popups.forEach(p => p.classList.remove("active"));
     bgLayer.classList.remove("active");
 }
 
@@ -77,18 +84,27 @@ bgLayer.addEventListener("click", (event) => {
 // PIN Logik
 (function () {
     const MAX = 4;
-    const popup = document.getElementById('pinPopup');
+    const popup = document.getElementById("pinPopup");
     if (!popup) return;
 
     const dots = Array.from(popup.querySelectorAll('.dot'));
-    const input = popup.querySelector('#pinInput');
     const row = popup.querySelector('.numpad-row');
+    let pin = "";
+    let pinPurpose = null; // "alcohol" or "admin"
+    let allCocktails = [];
+    let currentFilter = null; //
 
-    let pin = '';
+    // === Define & Load PINs ===
+    const defaultPins = { alcohol: "1111", admin: "9999" };
 
+    // always overwrite stored pins with current defaults
+    localStorage.setItem("cocktailPins", JSON.stringify(defaultPins));
+    const pins = defaultPins;
+
+
+    // === PIN Popup logic ===
     const update = () => {
-        dots.forEach((d, i) => d.classList.toggle('filled', i < pin.length));
-        if (input) input.value = pin;
+        dots.forEach((d, i) => d.classList.toggle("filled", i < pin.length));
         if (pin.length === MAX) onPinComplete(pin);
     };
 
@@ -98,74 +114,159 @@ bgLayer.addEventListener("click", (event) => {
         update();
     };
 
-    // optional „Korrigieren“: auf die Punkte tippen = ein Zeichen löschen
-    const backspace = () => { if (pin) { pin = pin.slice(0, -1); update(); } };
-    popup.querySelector('.pin-dots')?.addEventListener('click', backspace);
+    const backspace = () => {
+        if (pin) pin = pin.slice(0, -1);
+        update();
+    };
 
     row.addEventListener('click', (e) => {
         const btn = e.target.closest('.key');
         if (!btn) return;
+
+        if (btn.classList.contains("back")) {
+            backspace();
+            return;
+        }
+        if (btn.classList.contains("close")) {
+            return;
+        }
+
         const d = btn.getAttribute('data-key');
         if (d) add(d);
     });
 
-    function onPinComplete(code) {
-        // TODO: prüfe hier gegen Backend / Konfiguration
-        console.log('PIN eingegeben:', code);
+
+    function resetPinPopup() {
+        pin = "";
+        dots.forEach(d => d.classList.remove("filled"));
     }
 
+    function showPinPopup(purpose) {
+        pinPurpose = purpose;
+        resetPinPopup();
+        openPopup("pin");
+    }
+
+    function onPinComplete(code) {
+        if (pinPurpose === "alcohol") {
+            if (code === pins.alcohol) {
+                closePopup();
+                currentFilter = "alcoholic";
+                renderCocktails();
+                document.querySelectorAll('.selection').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('.selection')[1].classList.add('active');
+            } else {
+                alert("Falscher PIN!");
+                resetPinPopup();
+            }
+        } else if (pinPurpose === "admin") {
+            if (code === pins.admin) {
+                closePopup();
+                // TODO open admin UI
+            } else {
+                alert("Falscher Admin-PIN!");
+                resetPinPopup();
+            }
+        }
+    }
+
+    // === Load Cocktails ===
     async function loadCocktails() {
         const url = "http://127.0.0.1:5000/api/cocktails";
         try {
             const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`Response status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`Response status: ${response.status}`);
 
-            const cocktails = await response.json();
-            console.log("Cocktails:", cocktails);
-
-            const list = document.getElementById("cocktailList");
-            list.innerHTML = "";
-
-            cocktails.forEach(cocktail => {
-                const btn = document.createElement("button");
-                btn.type = "button";
-                btn.classList.add("drink-button");
-                btn.dataset.action = "drinkPopup";
-                btn.onclick = () => openCocktailPopup(cocktail);
-
-                btn.innerHTML = `
-                <img class="drink-img" draggable="false" 
-                     src="${cocktail.image_url || 'https://placehold.jp/3d4070/ffffff/128x128.png'}" 
-                     alt="${cocktail.name}">
-                <span>${cocktail.name}</span>
-            `;
-
-                list.appendChild(btn);
-            });
-
+            allCocktails = await response.json();
+            renderCocktails();
         } catch (error) {
             console.error("Fehler beim Laden der Cocktails:", error.message);
         }
     }
+
+    // === Render Cocktails ===
+    function renderCocktails() {
+        const list = document.getElementById("cocktailList");
+        list.innerHTML = "";
+
+        // If no category has been selected yet, show placeholder text
+        if (!currentFilter) {
+            list.innerHTML = `
+            <div class="placeholder-message">
+                <h1>Willkommen zum Cocktailmixer!</h1>
+                <p>Bitte wähle eine Kategorie aus, um die Getränke anzuzeigen.</p>
+            </div>
+        `;
+            return;
+        }
+
+        const filtered = allCocktails.filter(c => {
+            if (currentFilter === "non-alcoholic") return !c.alkoholisch;
+            if (currentFilter === "alcoholic") return c.alkoholisch;
+            return true;
+        });
+
+        if (filtered.length === 0) {
+            list.innerHTML = `<p style="text-align:center;color:#888;">Keine Getränke gefunden.</p>`;
+            return;
+        }
+
+        filtered.forEach(cocktail => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.classList.add("drink-button");
+            btn.onclick = () => openCocktailPopup(cocktail);
+
+            btn.innerHTML = `
+            <img class="drink-img" draggable="false"
+                src="${cocktail.image_url || 'https://placehold.jp/3d4070/ffffff/128x128.png'}"
+                alt="${cocktail.name}">
+            <span>${cocktail.name}</span>
+        `;
+            list.appendChild(btn);
+        });
+    }
+
+
+    // === Navbar click logic ===
+    document.querySelectorAll('.selection').forEach((sel, idx) => {
+        sel.addEventListener('click', () => {
+            document.querySelectorAll('.selection').forEach(s => s.classList.remove('active'));
+            sel.classList.add('active');
+
+            if (idx === 0) {
+                currentFilter = "non-alcoholic";
+                renderCocktails();
+            } else {
+                // PIN required for alcoholic drinks
+                showPinPopup("alcohol");
+            }
+        });
+    });
+
+    // === Admin button PIN ===
+    document.querySelectorAll('.admin-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            showPinPopup("admin");
+        });
+    });
+
+    // === Drink popup logic ===
     function openCocktailPopup(cocktail) {
         const bgLayer = document.getElementById("bgLayer");
         const popup = bgLayer.querySelector(".popup-drink");
 
-        // Inhalte setzen
-        popup.querySelector(".drink-img.big").src = cocktail.image_url || "https://placehold.jp/3d4070/ffffff/128x128.png";
+        popup.querySelector(".drink-img.big").src =
+            cocktail.image_url || "https://placehold.jp/3d4070/ffffff/128x128.png";
         popup.querySelector(".drink-title").textContent = cocktail.name;
-        popup.querySelector(".drink-description").textContent = cocktail.description || "Keine Beschreibung verfügbar.";
+        popup.querySelector(".drink-description").textContent =
+            cocktail.description || "Keine Beschreibung verfügbar.";
 
-        // Bestell-Button aktualisieren
         const orderBtn = popup.querySelector("button[onclick]");
         orderBtn.onclick = () => orderCocktail(cocktail.id);
 
-        // Popup öffnen
         openPopup("drink");
     }
+
     loadCocktails();
-
 })();
-

@@ -42,6 +42,10 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   align-items: center;
 
+  &.admin {
+   justify-content: center;
+  }
+
   .content  {
     display: flex;
     justify-content: center;
@@ -469,12 +473,18 @@ button, .selection, .key {
   text-align: center;
 }
 
+#tab-fill .liquid-list {
+  overflow-y: scroll;
+  max-height: 60vh;
+}
+
 .admin-tab {
   display: none;
   flex-direction: column;
   align-items: center;
   gap: 1.5rem;
   animation: fadeIn 0.3s ease;
+  margin-bottom: 32px;
 
   &.active {
     display: flex;
@@ -520,7 +530,7 @@ button, .selection, .key {
 
   .fill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent), lighten(var(--accent), 15%));
+    background-color: var(--accent);
     border-radius: 10px;
     transition: width 0.4s ease;
   }
@@ -577,4 +587,91 @@ button, .selection, .key {
 .status-msg {
   font-size: 1rem;
   margin-top: 0.5rem;
+}
+
+.admin-wrapper {
+  overflow: visible;
+}
+
+
+/* === Scrollbar-Styling für Hauptseite & Admin === */
+.select-window,
+.liquid-list {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--accent) transparent;
+}
+
+/* Webkit (Chrome, Edge, Safari) */
+.select-window::-webkit-scrollbar,
+.liquid-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.select-window::-webkit-scrollbar-thumb,
+.liquid-list::-webkit-scrollbar-thumb {
+  background-color: var(--accent);
+  border-radius: 10px;
+}
+
+.select-window::-webkit-scrollbar-track,
+.liquid-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Abstand zwischen Scrollbar und Inhalt */
+.liquid-list {
+  padding-right: 0.5rem;
+  max-height: 60vh; /* Begrenze die Höhe, damit es scrollbar wird */
+  overflow-y: auto;
+}
+/* === BACK BUTTON (Admin Navbar) === */
+.back-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(166, 120, 255, 0.2);
+  color: var(--accent);
+  font-weight: 500;
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-right: 1.5rem;
+  transition: var(--transition);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  &:hover {
+    background: rgba(166, 120, 255, 0.15);
+    border-color: var(--accent);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+/* === SORT BUTTON === */
+.sort-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(166, 120, 255, 0.2);
+  color: var(--accent);
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: var(--transition);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  align-self: flex-end; /* bleibt schön rechtsbündig über der Liste */
+
+  &:hover {
+    background: rgba(166, 120, 255, 0.15);
+    border-color: var(--accent);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
 }

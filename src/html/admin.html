@@ -10,24 +10,28 @@
 </head>
 <body>
 
-<nav class="navbar">
+<nav class="navbar admin">
     <div class="content">
+        <button id="backButton" class="back-btn">Zurück</button>
+
         <div class="selection active" data-tab="fill">Füllstände</div>
         <div class="line"></div>
         <div class="selection" data-tab="settings">Einstellungen</div>
     </div>
 </nav>
 
+
 <main class="admin-wrapper">
 
     <!-- Füllstände -->
     <section class="admin-tab active" id="tab-fill">
         <h2>Flüssigkeitsstände</h2>
+
+        <button id="sortToggle" class="sort-btn">🔽 Sortierung: Absteigend</button>
+
         <div class="liquid-list" id="liquidList">
             <!-- Dynamisch befüllt -->
         </div>
-
-        <button id="flushButton" class="flush-btn">💧 Alle Pumpen spülen</button>
     </section>
 
     <!-- Einstellungen -->
@@ -43,6 +47,8 @@
         <p id="pinStatus" class="status-msg"></p>
     </section>
 
+
+    <button id="flushButton" class="flush-btn">💧 Alle Pumpen spülen</button>
 </main>
 
 <script src="../js/scripts.js"></script>
@@ -58,26 +64,58 @@
         });
     });
 
-    // === Dummy Flüssigkeitsdaten (Backend-Anbindung später) ===
+    // === Dummy Flüssigkeitsdaten ===
     const liquids = [
         { name: "Wasser", level: 80 },
         { name: "Saft", level: 50 },
         { name: "Rum", level: 20 },
         { name: "Wodka", level: 60 },
         { name: "Cola", level: 90 },
+        { name: "Cola", level: 90 },
+        { name: "Cola", level: 90 },
+        { name: "Cola", level: 90 },
     ];
 
     const list = document.getElementById("liquidList");
-    liquids.forEach(liq => {
-        const el = document.createElement("div");
-        el.classList.add("liquid-item");
-        el.innerHTML = `
-        <span class="liquid-name">${liq.name}</span>
-        <div class="liquid-bar"><div class="fill" style="width:${liq.level}%"></div></div>
-        <span class="liquid-percent">${liq.level}%</span>
-      `;
-        list.appendChild(el);
+    const sortBtn = document.getElementById("sortToggle");
+    let ascending = false; // Start mit absteigender Sortierung (volle Tanks oben)
+
+    // Renderfunktion
+    function renderLiquids() {
+        list.innerHTML = "";
+        const sorted = [...liquids].sort((a, b) =>
+            ascending ? a.level - b.level : b.level - a.level
+        );
+
+        sorted.forEach(liq => {
+            const el = document.createElement("div");
+            el.classList.add("liquid-item");
+            el.innerHTML = `
+      <span class="liquid-name">${liq.name}</span>
+      <div class="liquid-bar">
+        <div class="fill" style="width:${liq.level}%"></div>
+      </div>
+      <span class="liquid-percent">${liq.level}%</span>
+    `;
+            list.appendChild(el);
+        });
+
+        // Button-Text aktualisieren
+        sortBtn.textContent = ascending
+            ? "🔼 Sortierung: Aufsteigend"
+            : "🔽 Sortierung: Absteigend";
+    }
+
+    // Klick-Handler für den Sortierbutton
+    sortBtn.addEventListener("click", () => {
+        ascending = !ascending;
+        renderLiquids();
     });
+
+    // Initiales Rendern
+    renderLiquids();
+
+
 
     // === Flush button ===
     document.getElementById("flushButton").addEventListener("click", () => {
@@ -104,6 +142,12 @@
         status.style.color = "#a678ff";
         document.getElementById("newAlcoholPin").value = "";
     });
+
+    // === Zurück-Button ===
+    document.getElementById("backButton").addEventListener("click", () => {
+        window.location.href = "index.html"; // zurück zur Hauptseite
+    });
+
 </script>
 </body>
 </html>

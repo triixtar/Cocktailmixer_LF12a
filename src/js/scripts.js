@@ -163,8 +163,7 @@ if(document.getElementById("bgLayer")){
             }
         } else if (pinPurpose === "admin") {
             if (code === pins.admin) {
-                closePopup();
-                // TODO open admin UI
+                window.location.href = "admin.html";
             } else {
                 alert("Falscher Admin-PIN!");
                 resetPinPopup();

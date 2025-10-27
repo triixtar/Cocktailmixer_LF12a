@@ -9,26 +9,101 @@
     <link rel="icon" type="image/x-icon" href="../icons/favicon.ico">
 </head>
 <body>
+
 <nav class="navbar">
-    <div>
-        <button type="button" style="opacity: 0; right: 5em;" class="admin-btn"><img draggable="false" src="../icons/settings.svg" alt=""></button>
-    </div>
     <div class="content">
-        <div class="selection">Alkoholfreie Getränke</div>
+        <div class="selection active" data-tab="fill">Füllstände</div>
         <div class="line"></div>
-        <div class="selection">Alkoholische Getränke</div>
-    </div>
-    <div>
-        <button type="button" class="admin-btn"><img draggable="false" src="../icons/settings.svg" alt=""></button>
+        <div class="selection" data-tab="settings">Einstellungen</div>
     </div>
 </nav>
 
-<div class="main-wrapper">
-</div>
+<main class="admin-wrapper">
 
+    <!-- Füllstände -->
+    <section class="admin-tab active" id="tab-fill">
+        <h2>Flüssigkeitsstände</h2>
+        <div class="liquid-list" id="liquidList">
+            <!-- Dynamisch befüllt -->
+        </div>
+
+        <button id="flushButton" class="flush-btn">💧 Alle Pumpen spülen</button>
+    </section>
+
+    <!-- Einstellungen -->
+    <section class="admin-tab" id="tab-settings">
+        <h2>PIN-Einstellungen</h2>
+
+        <div class="pin-settings">
+            <label for="newAlcoholPin">Neuer Alkohol-PIN:</label>
+            <input type="password" id="newAlcoholPin" maxlength="4" placeholder="****">
+            <button id="savePinBtn" class="save-btn">Speichern</button>
+        </div>
+
+        <p id="pinStatus" class="status-msg"></p>
+    </section>
+
+</main>
 
 <script src="../js/scripts.js"></script>
 <script>
+    // === Tab Navigation ===
+    document.querySelectorAll(".selection").forEach(sel => {
+        sel.addEventListener("click", () => {
+            document.querySelectorAll(".selection").forEach(s => s.classList.remove("active"));
+            sel.classList.add("active");
+
+            document.querySelectorAll(".admin-tab").forEach(tab => tab.classList.remove("active"));
+            document.getElementById("tab-" + sel.dataset.tab).classList.add("active");
+        });
+    });
+
+    // === Dummy Flüssigkeitsdaten (Backend-Anbindung später) ===
+    const liquids = [
+        { name: "Wasser", level: 80 },
+        { name: "Saft", level: 50 },
+        { name: "Rum", level: 20 },
+        { name: "Wodka", level: 60 },
+        { name: "Cola", level: 90 },
+    ];
+
+    const list = document.getElementById("liquidList");
+    liquids.forEach(liq => {
+        const el = document.createElement("div");
+        el.classList.add("liquid-item");
+        el.innerHTML = `
+        <span class="liquid-name">${liq.name}</span>
+        <div class="liquid-bar"><div class="fill" style="width:${liq.level}%"></div></div>
+        <span class="liquid-percent">${liq.level}%</span>
+      `;
+        list.appendChild(el);
+    });
+
+    // === Flush button ===
+    document.getElementById("flushButton").addEventListener("click", () => {
+        alert("Alle Pumpen werden gespült...");
+        // TODO: Backend-Request hier einfügen (z.B. /api/flush)
+    });
+
+    // === PIN ändern ===
+    document.getElementById("savePinBtn").addEventListener("click", () => {
+        const newPin = document.getElementById("newAlcoholPin").value.trim();
+        const status = document.getElementById("pinStatus");
+
+        if (newPin.length !== 4 || isNaN(newPin)) {
+            status.textContent = "Bitte einen 4-stelligen numerischen PIN eingeben.";
+            status.style.color = "#ff6666";
+            return;
+        }
+
+        const pins = JSON.parse(localStorage.getItem("cocktailPins")) || {};
+        pins.alcohol = newPin;
+        localStorage.setItem("cocktailPins", JSON.stringify(pins));
+
+        status.textContent = "Neuer Alkohol-PIN gespeichert!";
+        status.style.color = "#a678ff";
+        document.getElementById("newAlcoholPin").value = "";
+    });
 </script>
 </body>
 </html>

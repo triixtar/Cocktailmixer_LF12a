@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cocktailmixer API | Documentation not made with AI trust me bro</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-card: rgba(30, 30, 30, 0.6);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --accent-purple: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-pink: #ec4899;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 60px 40px;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+            opacity: 0.1;
+            border-radius: 24px;
+        }
+        
+        h1 {
+            font-size: 3.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.3em;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        .base-url {
+            margin-top: 20px;
+            padding: 15px 25px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            display: inline-block;
+            font-family: 'Monaco', monospace;
+            font-size: 0.95em;
+        }
+        
+        /* Navigation */
+        .nav {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 40px;
+            top: 20px;
+            z-index: 10;
+        }
+        
+        .nav h3 {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .nav-item {
+            padding: 12px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-item:hover {
+            background: var(--glass-bg);
+            border-color: var(--accent-purple);
+            transform: translateY(-2px);
+        }
+        
+        .nav-icon {
+            font-size: 1.2em;
+        }
+        
+        /* Endpoint Card */
+        .endpoint {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 35px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .endpoint:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.2);
+        }
+        
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .method {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        
+        .method.get {
+            background: linear-gradient(135deg, var(--accent-blue), #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .method.post {
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .path {
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 1.1em;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        .description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 25px;
+            font-size: 1.05em;
+        }
+        
+        .section-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 25px 0 15px 0;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border-radius: 2px;
+        }
+        
+        /* Code Block */
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-purple);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+        
+        .code-block pre {
+            margin: 0;
+        }
+        
+        /* Response */
+        .response {
+            background: rgba(16, 185, 129, 0.05);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-left: 4px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+        
+        .response pre {
+            margin: 0;
+            color: #e0e0e0;
+            font-family: 'Monaco', monospace;
+            font-size: 0.9em;
+        }
+        
+        /* Error Response */
+        .error-response {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-left: 4px solid #ef4444;
+        }
+        
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        th {
+            background: rgba(139, 92, 246, 0.1);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 15px;
+            text-align: left;
+            font-size: 0.95em;
+        }
+        
+        td {
+            padding: 15px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        td code {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            color: var(--accent-purple);
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .badge.required {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .badge.optional {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 60px 0;
+            color: var(--text-secondary);
+            margin-top: 60px;
+        }
+        
+        footer p {
+            margin: 8px 0;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a78bfa;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .endpoint {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+            
+            .endpoint {
+                padding: 25px;
+            }
+            
+            .nav-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🍸 Cocktailmixer API</h1>
+            <p class="subtitle">Developer Documentation v2.0 100% AI-Free and human made</p>
+            <div class="base-url">Base URL: http://localhost:5000</div>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <div class="nav-grid">
+                <a href="#cocktails" class="nav-item">
+                    <span class="nav-icon">🍹</span> Cocktails
+                </a>
+                <a href="#ingredients" class="nav-item">
+                    <span class="nav-icon">🧪</span> Ingredients
+                </a>
+                <a href="#order" class="nav-item">
+                    <span class="nav-icon">🎯</span> Order
+                </a>
+                <a href="#pin" class="nav-item">
+                    <span class="nav-icon">🔒</span> PIN Auth
+                </a>
+                <a href="#status" class="nav-item">
+                    <span class="nav-icon">📊</span> Status
+                </a>
+            </div>
+        </div>
+
+        <!-- COCKTAILS -->
+        <div id="cocktails" class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/api/cocktails</span>
+            </div>
+            <p class="description">
+                Ruft alle verfügbaren Cocktails ab. Optional filterbar nach alkoholisch/alkoholfrei.
+            </p>
+            
+            <div class="section-title">Query Parameters</div>
+            <table>
+                <tr>
+                    <th>Parameter</th>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><code>alkoholisch</code></td>
+                    <td>string</td>
+                    <td>"true" für alkoholische, "false" für alkoholfreie Cocktails</td>
+                </tr>
+            </table>
+
+            <div class="section-title">Example Request</div>
+            <div class="code-block">
+<pre>GET http://localhost:5000/api/cocktails
+GET http://localhost:5000/api/cocktails?alkoholisch=true
+GET http://localhost:5000/api/cocktails?alkoholisch=false</pre>
+            </div>
+
+            <div class="section-title">Example Response</div>
+            <div class="response">
+<pre>[
+  {
+    "id": 1,
+    "name": "Gin Tonic",
+    "liquid_recipe": [
+      {
+        "pump_id": 8,
+        "ingredient_name": "Tonic",
+        "amount_ml": 260
+      }
+    ],
+    "manual_ingredients": [
+      {
+        "ingredient_name": "Limette",
+        "instruction": "1 Scheibe hinzufügen"
+      }
+    ],
+    "alkoholisch": true,
+    "glass_size_ml": 350
+  }
+]</pre>
+            </div>
+        </div>
+
+        <!-- INGREDIENTS -->
+        <div id="ingredients" class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/api/ingredients</span>
+            </div>
+            <p class="description">
+                Gibt den aktuellen Status aller Zutaten zurück (Füllstand, ID, ob pumpbar).
+            </p>
+
+            <div class="section-title">Example Response</div>
+            <div class="response">
+<pre>[
+  {
+    "ingredient_id": 1,
+    "ingredient_name": "Cola",
+    "is_liquid": true,
+    "current_level": 750,
+    "pump_id": 0
+  }
+]</pre>
+            </div>
+        </div>
+
+        <!-- INGREDIENTS REFILL -->
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/api/ingredients/refill</span>
+            </div>
+            <p class="description">
+                Füllt eine spezifische Zutat auf (addiert zur aktuellen Menge).
+            </p>
+
+            <div class="section-title">
+                Request Body
+                <span class="badge required">REQUIRED</span>
+            </div>
+            <div class="code-block">
+<pre>{
+  "ingredient_id": 1,
+  "amount": 200
+}</pre>
+            </div>
+
+            <div class="section-title">Example Response</div>
+            <div class="response">
+<pre>{
+  "success": true,
+  "ingredient_id": 1,
+  "added_amount": 200,
+  "new_level": 950
+}</pre>
+            </div>
+        </div>
+
+        <!-- INGREDIENTS REFILL ALL -->
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/api/ingredients/refill_all</span>
+            </div>
+            <p class="description">
+                Setzt alle Zutaten auf einen bestimmten Wert (Standard: 2000ml).
+            </p>
+
+            <div class="section-title">
+                Request Body
+                <span class="badge optional">OPTIONAL</span>
+            </div>
+            <div class="code-block">
+<pre>{
+  "level": 2000
+}</pre>
+            </div>
+
+            <div class="section-title">Example Response</div>
+            <div class="response">
+<pre>{
+  "success": true,
+  "level_set": 2000,
+  "updated_count": 19
+}</pre>
+            </div>
+        </div>
+
+        <!-- ORDER -->
+        <div id="order" class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/api/order</span>
+            </div>
+            <p class="description">
+                Bestellt einen Cocktail und startet den automatischen Mixvorgang.
+            </p>
+
+            <div class="section-title">
+                Request Body
+                <span class="badge required">REQUIRED</span>
+            </div>
+            <div class="code-block">
+<pre>{
+  "cocktail_id": 1
+}</pre>
+            </div>
+
+            <div class="section-title">Example Response</div>
+            <div class="response">
+<pre>{
+  "status": "mixing",
+  "cocktail": "Gin Tonic",
+  "alkoholisch": true,
+  "volume": "350ml",
+  "liquid_ingredients": [...],
+  "manual_steps": [
+    {
+      "ingredient_name": "Limette",
+      "instruction": "1 Scheibe hinzufügen"
+    }
+  ]
+}</pre>
+            </div>
+        </div>
+
+        <!-- PIN CHECK -->
+        <div id="pin" class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/api/check-pin</span>
+            </div>
+            <p class="description">
+                Überprüft die eingegebene PIN für alkoholische Getränke.
+            </p>
+
+            <div class="section-title">
+                Request Body
+                <span class="badge required">REQUIRED</span>
+            </div>
+            <div class="code-block">
+<pre>{
+  "pin": "1234"
+}</pre>
+            </div>
+
+            <div class="section-title">Example Response (Success)</div>
+            <div class="response">
+<pre>{
+  "valid": true,
+  "message": "PIN korrekt"
+}</pre>
+            </div>
+
+            <div class="section-title">Example Response (Error)</div>
+            <div class="response error-response">
+<pre>{
+  "valid": false,
+  "message": "PIN falsch"
+}</pre>
+            </div>
+        </div>
+
+        <!-- PIN CHANGE -->
+        <div class="endpoint">
+            <div class="endpoint-header">
+                <span class="method post">POST</span>
+                <span class="path">/api/change-pin</span>
+            </div>
+            <p class="description">
+                Ändert die PIN (benötigt die alte PIN zur Verifizierung).
+            </p>
+
+            <div class="section-title">
+                Request Body
+                <span class="badge required">REQUIRED</span>
+            </div>
+            <div class="code-block">
+<pre>{
+  "old_pin": "1234",
+  "new_pin": "5678"
+}</pre>
+            </div>
+
+            <div class="section-title">Example Response</div>
+            <div class="response">
+<pre>{
+  "success": true,
+  "message": "PIN erfolgreich geändert"
+}</pre>
+            </div>
+        </div>
+
+        <!-- STATUS -->
+        <div id="status" class="endpoint">
+            <div class="endpoint-header">
+                <span class="method get">GET</span>
+                <span class="path">/api/status</span>
+            </div>
+            <p class="description">
+                Gibt den aktuellen Systemstatus zurück (Mixing-Status, Anzahl Cocktails).
+            </p>
+
+            <div class="section-title">Example Response</div>
+            <div class="response">
+<pre>{
+  "is_mixing": false,
+  "total_cocktails": 30,
+  "alcoholic_cocktails": 22,
+  "non_alcoholic_cocktails": 8
+}</pre>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p style="font-size: 1.2em; margin-bottom: 10px;">🍸 Cocktailmixer LF12a</p>
+            <p>API Documentation v2.0</p>
+            <p style="font-size: 0.9em; color: #666;">Built with ❤️ | Oktober 2025</p>
+        </footer>
+    </div>
+</body>
+</html>

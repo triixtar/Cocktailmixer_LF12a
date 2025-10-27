@@ -17,10 +17,12 @@ def home():
             'cocktails': '/api/cocktails',
             'alcoholic': '/api/cocktails/alcoholic',
             'non_alcoholic': '/api/cocktails/non-alcoholic',
-            'ingredients': '/api/ingredients',  # ← Geändert
+            'ingredients': '/api/ingredients',
             'order': '/api/order',
             'status': '/api/status',
-            'test_pump': '/api/test-pump/<pump_id>'
+            'test_pump': '/api/test-pump/<pump_id>',
+            'check_pin': '/api/check-pin',     
+            'change_pin': '/api/change-pin'
         },
         'new_features': [
             'Unterscheidung zwischen flüssigen und manuellen Zutaten',

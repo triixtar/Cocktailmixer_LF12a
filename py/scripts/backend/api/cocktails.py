@@ -175,3 +175,68 @@ def test_pump(pump_id):
     """Einzelne Pumpe testen"""
     success = pump_controller.test_pump(pump_id)
     return jsonify({'success': success, 'pump_id': pump_id})
+
+# PIN-Schutz nicht vorhanden aber egal, läuft lokal ;)
+CURRENT_PIN = "1234"
+
+@cocktails_bp.route('/check-pin', methods=['POST'])
+def check_pin():
+    """PIN überprüfen
+    
+    POST JSON: {"pin": "1234"}
+    """
+    data = request.get_json()
+    
+    if not data or 'pin' not in data:
+        return jsonify({'error': 'PIN erforderlich'}), 400
+    
+    pin = str(data.get('pin'))
+    
+    # PIN validieren
+    if not pin.isdigit() or len(pin) != 4:
+        return jsonify({'error': 'PIN muss 4 Ziffern sein'}), 400
+    
+    is_valid = (pin == CURRENT_PIN)
+    
+    return jsonify({
+        'valid': is_valid,
+        'message': 'PIN korrekt' if is_valid else 'PIN falsch'
+    })
+
+@cocktails_bp.route('/change-pin', methods=['POST'])
+def change_pin():
+    """PIN ändern
+    
+    POST JSON: {"old_pin": "1234", "new_pin": "5678"}
+    """
+    global CURRENT_PIN
+    
+    data = request.get_json()
+    
+    if not data or 'old_pin' not in data or 'new_pin' not in data:
+        return jsonify({'error': 'old_pin und new_pin erforderlich'}), 400
+    
+    old_pin = str(data.get('old_pin'))
+    new_pin = str(data.get('new_pin'))
+    
+    # PINs validieren
+    if not old_pin.isdigit() or len(old_pin) != 4:
+        return jsonify({'error': 'Alte PIN muss 4 Ziffern sein'}), 400
+    
+    if not new_pin.isdigit() or len(new_pin) != 4:
+        return jsonify({'error': 'Neue PIN muss 4 Ziffern sein'}), 400
+    
+    # Alte PIN prüfen
+    if old_pin != CURRENT_PIN:
+        return jsonify({
+            'success': False,
+            'message': 'Alte PIN falsch'
+        }), 401
+    
+    # PIN ändern
+    CURRENT_PIN = new_pin
+    
+    return jsonify({
+        'success': True,
+        'message': 'PIN erfolgreich geändert'
+    })

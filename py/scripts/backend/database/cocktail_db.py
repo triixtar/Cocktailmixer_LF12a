@@ -116,7 +116,7 @@ class CocktailDatabase:
         """Status aller Zutaten (ersetzt get_bottles_status)"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute('''
-                SELECT ingredientID, ingredient, isLiquid, currentLevel 
+                SELECT ingredientID, ingredient, isLiquid, currentLevel
                 FROM ingredients ORDER BY ingredientID
             ''')
             

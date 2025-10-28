@@ -71,6 +71,7 @@ class CocktailDatabase:
                     available_cocktails.append({
                         'id': cocktail_id,
                         'name': name,
+                        'image_path': "scr/images/" + name + ".png",
                         'liquid_recipe': liquid_recipe,  # Zum Pumpen
                         'manual_ingredients': manual_ingredients,  # Manuell hinzufügen
                         'alkoholisch': bool(alkohol_flag),

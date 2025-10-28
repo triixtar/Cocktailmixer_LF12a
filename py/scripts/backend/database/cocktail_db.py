@@ -9,7 +9,7 @@ class CocktailDatabase:
         self.ingredient_to_pump = {
             'Cola': 1, 'Limettensaft': 2, 'Zitronensaft': 3, 'Maracujasaft': 4,
             'Orangensaft': 5, 'Ananassaft': 6, 'Gernadine': 7, 'Kokossyrup': 8,
-            'Tonic': 9, 'Havana': 10, 'Bacardi Hell': 11, 'Vodka': 12,
+            'Tonic': 9, 'Havana': 10, 'Bacardi Hell': 11, 'Wodka': 12,
             'Gin': 13, 'Tequilla': 14, 'Pitu': 15, 'Whisky': 16,
             'Limette': 17, 'Rohrzucker': 18, 'Minze': 19
         }

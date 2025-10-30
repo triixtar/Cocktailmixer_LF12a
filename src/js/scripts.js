@@ -218,14 +218,13 @@ bgLayer.addEventListener("click", (event) => {
 
             btn.innerHTML = `
             <img class="drink-img" draggable="false"
-                src="${cocktail.image_url || 'https://placehold.jp/3d4070/ffffff/128x128.png'}"
+                src="${cocktail.image_path || 'https://placehold.jp/3d4070/ffffff/128x128.png'}"
                 alt="${cocktail.name}">
             <span>${cocktail.name}</span>
         `;
             list.appendChild(btn);
         });
     }
-
 
     // === Navbar click logic ===
     document.querySelectorAll('.selection').forEach((sel, idx) => {
@@ -256,7 +255,7 @@ bgLayer.addEventListener("click", (event) => {
         const popup = bgLayer.querySelector(".popup-drink");
 
         popup.querySelector(".drink-img.big").src =
-            cocktail.image_url || "https://placehold.jp/3d4070/ffffff/128x128.png";
+            cocktail.image_path || "https://placehold.jp/3d4070/ffffff/128x128.png";
         popup.querySelector(".drink-title").textContent = cocktail.name;
         popup.querySelector(".drink-description").textContent =
             cocktail.description || "Keine Beschreibung verfügbar.";

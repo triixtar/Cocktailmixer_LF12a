@@ -324,10 +324,6 @@ body {
     transition: var(--transition);
     box-shadow: 0 0 20px rgba(166, 120, 255, 0.3);
 
-    &:hover {
-      background: lighten(var(--accent), 5%);
-      transform: scale(1.05);
-    }
   }
 }
 
@@ -553,10 +549,6 @@ button, .selection, .key {
   transition: var(--transition);
   box-shadow: 0 0 20px rgba(166, 120, 255, 0.3);
 
-  &:hover {
-    transform: scale(1.05);
-    background: lighten(var(--accent), 5%);
-  }
 }
 
 .pin-settings {
@@ -673,5 +665,113 @@ button, .selection, .key {
 
   &:active {
     transform: scale(0.97);
+  }
+}
+
+/* === POPUP: DRINK (zweispaltiges Layout) === */
+.popup-drink {
+  width: 720px;
+  height: 420px;
+  max-width: 95vw;
+  max-height: 90vh;
+  background: rgba(25, 25, 35, 0.95);
+  border: 1px solid rgba(166, 120, 255, 0.25);
+  border-radius: var(--radius);
+  box-shadow: 0 0 30px rgba(166, 120, 255, 0.3);
+  padding: 2rem;
+  display: flex;
+  flex-direction: row; /* zwei Spalten */
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: 2rem;
+  animation: fadeIn 0.25s ease;
+
+  /* === Bildbereich links === */
+  .image-wrap {
+    flex: 0 0 45%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    img.big {
+      width: 260px;
+      height: 260px;
+      object-fit: cover;
+      border-radius: 20px;
+      transition: transform 0.3s ease;
+    }
+
+  }
+
+  /* === Info-Bereich rechts === */
+  .drink-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    text-align: left;
+    gap: 1rem;
+
+    .drink-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .drink-description {
+      font-size: 1rem;
+      color: var(--muted-text);
+      line-height: 1.5;
+      max-width: 95%;
+    }
+
+    button {
+      background: var(--accent);
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      padding: 0.9rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 0 20px rgba(166, 120, 255, 0.3);
+    }
+  }
+
+  /* === Optional: Platzhalter für zukünftige Zutaten-Icons === */
+  .ingredient-icons {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+
+    img {
+      width: 36px;
+      height: 36px;
+      filter: brightness(0.9);
+    }
+  }
+
+  /* === Close Button === */
+  .close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--muted-text);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: var(--transition);
+
+    &:hover {
+      color: var(--accent);
+      transform: scale(1.2);
+    }
   }
 }

@@ -13,141 +13,233 @@
 <nav class="navbar admin">
     <div class="content">
         <button id="backButton" class="back-btn">Zurück</button>
-
         <div class="selection active" data-tab="fill">Füllstände</div>
         <div class="line"></div>
         <div class="selection" data-tab="settings">Einstellungen</div>
     </div>
 </nav>
 
-
 <main class="admin-wrapper">
 
     <!-- Füllstände -->
     <section class="admin-tab active" id="tab-fill">
         <h2>Flüssigkeitsstände</h2>
-
-        <button id="sortToggle" class="sort-btn">🔽 Sortierung: Absteigend</button>
-
-        <div class="liquid-list" id="liquidList">
-            <!-- Dynamisch befüllt -->
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+            <button id="sortToggle" class="sort-btn">🔽 Sortierung: Absteigend</button>
+            <button id="refillAllBtn" class="save-btn">🔄 Alle auffüllen</button>
         </div>
+        <div class="liquid-list" id="liquidList"></div>
     </section>
 
     <!-- Einstellungen -->
     <section class="admin-tab" id="tab-settings">
         <h2>PIN-Einstellungen</h2>
-
         <div class="pin-settings">
+            <label for="oldAlcoholPin">Alter Alkohol-PIN:</label>
+            <input type="password" id="oldAlcoholPin" maxlength="4" placeholder="****">
+
             <label for="newAlcoholPin">Neuer Alkohol-PIN:</label>
             <input type="password" id="newAlcoholPin" maxlength="4" placeholder="****">
+
             <button id="savePinBtn" class="save-btn">Speichern</button>
         </div>
-
         <p id="pinStatus" class="status-msg"></p>
     </section>
-
 
     <button id="flushButton" class="flush-btn">💧 Alle Pumpen spülen</button>
 </main>
 
-<script src="../js/scripts.js"></script>
 <script>
-    // === Tab Navigation ===
+    // Tab-Navigation
     document.querySelectorAll(".selection").forEach(sel => {
         sel.addEventListener("click", () => {
             document.querySelectorAll(".selection").forEach(s => s.classList.remove("active"));
             sel.classList.add("active");
-
             document.querySelectorAll(".admin-tab").forEach(tab => tab.classList.remove("active"));
             document.getElementById("tab-" + sel.dataset.tab).classList.add("active");
         });
     });
 
-    // === Dummy Flüssigkeitsdaten ===
-    const liquids = [
-        { name: "Wasser", level: 80 },
-        { name: "Saft", level: 50 },
-        { name: "Rum", level: 20 },
-        { name: "Wodka", level: 60 },
-        { name: "Cola", level: 90 },
-        { name: "Cola", level: 90 },
-        { name: "Cola", level: 90 },
-        { name: "Cola", level: 90 },
-    ];
-
+    // Globale Variablen
     const list = document.getElementById("liquidList");
     const sortBtn = document.getElementById("sortToggle");
-    let ascending = false; // Start mit absteigender Sortierung (volle Tanks oben)
+    const refillAllBtn = document.getElementById("refillAllBtn");
+    let ascending = false;
+    let ingredients = [];
 
-    // Renderfunktion
-    function renderLiquids() {
+    // Zutaten aus Backend laden
+    async function loadIngredients() {
+        try {
+            const res = await fetch("http://127.0.0.1:5000/api/ingredients");
+            if (!res.ok) throw new Error("Fehler beim Abrufen der Zutaten");
+            ingredients = await res.json();
+            renderIngredients();
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = `<p style="color:#ff6666;text-align:center;">Fehler beim Laden der Zutaten.</p>`;
+        }
+    }
+
+    // Zutatenliste rendern
+    function renderIngredients() {
         list.innerHTML = "";
-        const sorted = [...liquids].sort((a, b) =>
-            ascending ? a.level - b.level : b.level - a.level
+        const normalized = ingredients.map(i => ({
+            id: i.ingredient_id ?? i.id ?? 0,
+            name: i.ingredient_name ?? i.name ?? "Unbekannt",
+            current: i.current_level ?? i.level_ml ?? 0,
+            max: i.max_level ?? i.max_level_ml ?? 2000
+        }));
+
+        const sorted = [...normalized].sort((a, b) =>
+            ascending ? a.current - b.current : b.current - a.current
         );
 
-        sorted.forEach(liq => {
+        sorted.forEach(i => {
+            const percent = Math.min(100, Math.round((i.current / i.max) * 100));
             const el = document.createElement("div");
             el.classList.add("liquid-item");
             el.innerHTML = `
-      <span class="liquid-name">${liq.name}</span>
-      <div class="liquid-bar">
-        <div class="fill" style="width:${liq.level}%"></div>
-      </div>
-      <span class="liquid-percent">${liq.level}%</span>
-    `;
+                <span class="liquid-name">${i.name}</span>
+                <div class="liquid-bar">
+                    <div class="fill" style="width:${percent}%;"></div>
+                </div>
+                <span class="liquid-percent">${percent}%</span>
+                <button class="refill-btn" data-id="${i.id}">➕ Nachfüllen</button>
+                <button class="set-btn" data-id="${i.id}">✏️ Setzen</button>
+            `;
             list.appendChild(el);
         });
 
-        // Button-Text aktualisieren
+        // Buttons für Nachfüllen und Setzen aktivieren
+        list.querySelectorAll(".refill-btn").forEach(btn => {
+            btn.addEventListener("click", () => refillIngredient(parseInt(btn.dataset.id)));
+        });
+        list.querySelectorAll(".set-btn").forEach(btn => {
+            btn.addEventListener("click", () => setIngredientLevel(parseInt(btn.dataset.id)));
+        });
+
         sortBtn.textContent = ascending
             ? "🔼 Sortierung: Aufsteigend"
             : "🔽 Sortierung: Absteigend";
     }
 
-    // Klick-Handler für den Sortierbutton
+    // Nachfüllen einzelner Zutat
+    async function refillIngredient(id) {
+        const amount = prompt("Wie viel ml hinzufügen?");
+        if (!amount || isNaN(amount) || amount <= 0) return alert("Ungültige Menge.");
+        try {
+            const res = await fetch("http://127.0.0.1:5000/api/ingredients/refill", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ingredient_id: id, amount: parseFloat(amount) })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Fehler beim Nachfüllen");
+            alert(`Zutat #${id} um ${amount}ml aufgefüllt.`);
+            await loadIngredients();
+        } catch (err) {
+            console.error(err);
+            alert("Fehler beim Nachfüllen.");
+        }
+    }
+
+    // Setzen eines festen Levels
+    async function setIngredientLevel(id) {
+        const level = prompt("Neuen Füllstand in ml eingeben:");
+        if (!level || isNaN(level) || level < 0) return alert("Ungültiger Wert.");
+        try {
+            const res = await fetch("http://127.0.0.1:5000/api/ingredients/set", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ingredient_id: id, level: parseFloat(level) })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Fehler beim Setzen des Levels");
+            alert(`Zutat #${id} auf ${level}ml gesetzt.`);
+            await loadIngredients();
+        } catch (err) {
+            console.error(err);
+            alert("Fehler beim Setzen des Levels.");
+        }
+    }
+
+    // Sortierung umschalten
     sortBtn.addEventListener("click", () => {
         ascending = !ascending;
-        renderLiquids();
+        renderIngredients();
     });
 
-    // Initiales Rendern
-    renderLiquids();
-
-
-
-    // === Flush button ===
-    document.getElementById("flushButton").addEventListener("click", () => {
-        alert("Alle Pumpen werden gespült...");
-        // TODO: Backend-Request hier einfügen (z.B. /api/flush)
+    // Alle Zutaten auffüllen
+    refillAllBtn.addEventListener("click", async () => {
+        if (!confirm("Alle Zutaten auf 2000 ml auffüllen?")) return;
+        try {
+            const res = await fetch("http://127.0.0.1:5000/api/ingredients/refill_all", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ level: 2000 })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Fehler beim Auffüllen");
+            alert("Alle Zutaten wurden aufgefüllt!");
+            ingredients = data.ingredients_status || [];
+            renderIngredients();
+        } catch (err) {
+            console.error(err);
+            alert("Fehler beim Auffüllen der Zutaten.");
+        }
     });
 
-    // === PIN ändern ===
-    document.getElementById("savePinBtn").addEventListener("click", () => {
-        const newPin = document.getElementById("newAlcoholPin").value.trim();
+    // Flush-Button (Backend-Endpoint noch hinzufügen)
+    document.getElementById("flushButton").addEventListener("click", async () => {
+        alert("Alle Pumpen werden gespült... (Backend-Endpoint fehlt noch)");
+    });
+
+    // PIN ändern
+    document.getElementById("savePinBtn").addEventListener("click", async () => {
+        const oldPinEl = document.getElementById("oldAlcoholPin");
+        const newPinEl = document.getElementById("newAlcoholPin");
         const status = document.getElementById("pinStatus");
 
-        if (newPin.length !== 4 || isNaN(newPin)) {
-            status.textContent = "Bitte einen 4-stelligen numerischen PIN eingeben.";
+        const oldPin = (oldPinEl?.value || "").trim();
+        const newPin = (newPinEl?.value || "").trim();
+
+        if (oldPin.length !== 4 || isNaN(oldPin) || newPin.length !== 4 || isNaN(newPin)) {
+            status.textContent = "Bitte alte und neue 4-stellige numerische PINs eingeben.";
             status.style.color = "#ff6666";
             return;
         }
 
-        const pins = JSON.parse(localStorage.getItem("cocktailPins")) || {};
-        pins.alcohol = newPin;
-        localStorage.setItem("cocktailPins", JSON.stringify(pins));
+        try {
+            const response = await fetch("http://127.0.0.1:5000/api/change-pin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ old_pin: oldPin, new_pin: newPin })
+            });
+            const result = await response.json();
 
-        status.textContent = "Neuer Alkohol-PIN gespeichert!";
-        status.style.color = "#a678ff";
-        document.getElementById("newAlcoholPin").value = "";
+            if (!response.ok) {
+                status.textContent = result.message || "Fehler beim Ändern des PINs.";
+                status.style.color = "#ff6666";
+                return;
+            }
+
+            status.textContent = "Neuer Alkohol-PIN gespeichert!";
+            status.style.color = "#a678ff";
+            oldPinEl.value = "";
+            newPinEl.value = "";
+        } catch (error) {
+            status.textContent = "Verbindungsfehler zum Server.";
+            status.style.color = "#ff6666";
+        }
     });
 
-    // === Zurück-Button ===
+    // Zurück zur Hauptseite
     document.getElementById("backButton").addEventListener("click", () => {
-        window.location.href = "index.html"; // zurück zur Hauptseite
+        window.location.href = "index.html";
     });
 
+    // Initiales Laden
+    loadIngredients();
 </script>
 </body>
 </html>

@@ -177,27 +177,53 @@ def test_pump(pump_id):
     return jsonify({'success': success, 'pump_id': pump_id})
 
 # PIN-Schutz nicht vorhanden aber egal, läuft lokal ;)
-CURRENT_PIN = "1234"
+import json, os
+
+ALCOHOL_PIN_FILE = "data/pin.json"
+ADMIN_PIN = "9999"
+
+def load_alcohol_pin():
+    if os.path.exists(ALCOHOL_PIN_FILE):
+        try:
+            with open(ALCOHOL_PIN_FILE, "r") as f:
+                data = json.load(f)
+                p = str(data.get("alcohol_pin", "1234"))
+                if p.isdigit() and len(p) == 4:
+                    return p
+        except Exception:
+            pass
+    return "1234"
+
+def save_alcohol_pin(pin):
+    os.makedirs(os.path.dirname(ALCOHOL_PIN_FILE), exist_ok=True)
+    with open(ALCOHOL_PIN_FILE, "w") as f:
+        json.dump({"alcohol_pin": pin}, f)
+
+CURRENT_ALCOHOL_PIN = load_alcohol_pin()
 
 @cocktails_bp.route('/check-pin', methods=['POST'])
 def check_pin():
     """PIN überprüfen
-    
+
     POST JSON: {"pin": "1234"}
     """
     data = request.get_json()
-    
+
     if not data or 'pin' not in data:
         return jsonify({'error': 'PIN erforderlich'}), 400
-    
+
     pin = str(data.get('pin'))
-    
+    purpose = str(data.get('purpose', 'alcohol'))  # "alcohol" oder "admin"
+
     # PIN validieren
     if not pin.isdigit() or len(pin) != 4:
         return jsonify({'error': 'PIN muss 4 Ziffern sein'}), 400
-    
-    is_valid = (pin == CURRENT_PIN)
-    
+
+    if purpose == "admin":
+        is_valid = (pin == ADMIN_PIN)
+    else:
+        is_valid = (pin == CURRENT_ALCOHOL_PIN)
+
     return jsonify({
         'valid': is_valid,
         'message': 'PIN korrekt' if is_valid else 'PIN falsch'
@@ -206,35 +232,36 @@ def check_pin():
 @cocktails_bp.route('/change-pin', methods=['POST'])
 def change_pin():
     """PIN ändern
-    
+
     POST JSON: {"old_pin": "1234", "new_pin": "5678"}
     """
-    global CURRENT_PIN
-    
+    global CURRENT_ALCOHOL_PIN
+
     data = request.get_json()
-    
+
     if not data or 'old_pin' not in data or 'new_pin' not in data:
         return jsonify({'error': 'old_pin und new_pin erforderlich'}), 400
-    
+
     old_pin = str(data.get('old_pin'))
     new_pin = str(data.get('new_pin'))
-    
+
     # PINs validieren
     if not old_pin.isdigit() or len(old_pin) != 4:
         return jsonify({'error': 'Alte PIN muss 4 Ziffern sein'}), 400
-    
+
     if not new_pin.isdigit() or len(new_pin) != 4:
         return jsonify({'error': 'Neue PIN muss 4 Ziffern sein'}), 400
-    
-    # Alte PIN prüfen
-    if old_pin != CURRENT_PIN:
+
+    # Alte PIN prüfen (nur Alkohol-PIN änderbar)
+    if old_pin != CURRENT_ALCOHOL_PIN:
         return jsonify({
             'success': False,
             'message': 'Alte PIN falsch'
         }), 401
-    
-    # PIN ändern
-    CURRENT_PIN = new_pin
+
+    # PIN ändern (nur Alkohol-PIN)
+    CURRENT_ALCOHOL_PIN = new_pin
+    save_alcohol_pin(new_pin)
     
     return jsonify({
         'success': True,

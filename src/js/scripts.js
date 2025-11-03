@@ -94,15 +94,9 @@ bgLayer.addEventListener("click", (event) => {
     let allCocktails = [];
     let currentFilter = null; //
 
-    // === Define & Load PINs ===
-    const defaultPins = { alcohol: "1111", admin: "9999" };
+    // === Backend-PINs ===
+    const pins = { alcohol: null, admin: null };
 
-    // always overwrite stored pins with current defaults
-    localStorage.setItem("cocktailPins", JSON.stringify(defaultPins));
-    const pins = defaultPins;
-
-
-    // === PIN Popup logic ===
     const update = () => {
         dots.forEach((d, i) => d.classList.toggle("filled", i < pin.length));
         if (pin.length === MAX) onPinComplete(pin);
@@ -135,7 +129,6 @@ bgLayer.addEventListener("click", (event) => {
         if (d) add(d);
     });
 
-
     function resetPinPopup() {
         pin = "";
         dots.forEach(d => d.classList.remove("filled"));
@@ -147,27 +140,39 @@ bgLayer.addEventListener("click", (event) => {
         openPopup("pin");
     }
 
-    function onPinComplete(code) {
-        if (pinPurpose === "alcohol") {
-            if (code === pins.alcohol) {
+    async function onPinComplete(code) {
+        try {
+            const res = await fetch("http://127.0.0.1:5000/api/check-pin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ pin: code, purpose: pinPurpose }) // <- wichtig
+            });
+
+            const data = await res.json();
+
+            if (!data.valid) {
+                alert("Falscher PIN!");
+                resetPinPopup();
+                return;
+            }
+
+            if (pinPurpose === "alcohol") {
                 closePopup();
                 currentFilter = "alcoholic";
                 renderCocktails();
                 document.querySelectorAll('.selection').forEach(s => s.classList.remove('active'));
                 document.querySelectorAll('.selection')[1].classList.add('active');
-            } else {
-                alert("Falscher PIN!");
-                resetPinPopup();
-            }
-        } else if (pinPurpose === "admin") {
-            if (code === pins.admin) {
+            } else if (pinPurpose === "admin") {
                 window.location.href = "admin.html";
-            } else {
-                alert("Falscher Admin-PIN!");
-                resetPinPopup();
             }
+
+        } catch (err) {
+            console.error("PIN-Überprüfung fehlgeschlagen:", err.message);
+            alert("Fehler bei der PIN-Überprüfung.");
+            resetPinPopup();
         }
     }
+
 
     // === Load Cocktails ===
     async function loadCocktails() {
@@ -183,12 +188,10 @@ bgLayer.addEventListener("click", (event) => {
         }
     }
 
-    // === Render Cocktails ===
     function renderCocktails() {
         const list = document.getElementById("cocktailList");
         list.innerHTML = "";
 
-        // If no category has been selected yet, show placeholder text
         if (!currentFilter) {
             list.innerHTML = `
             <div class="placeholder-message">
@@ -226,7 +229,6 @@ bgLayer.addEventListener("click", (event) => {
         });
     }
 
-    // === Navbar click logic ===
     document.querySelectorAll('.selection').forEach((sel, idx) => {
         sel.addEventListener('click', () => {
             document.querySelectorAll('.selection').forEach(s => s.classList.remove('active'));
@@ -236,20 +238,17 @@ bgLayer.addEventListener("click", (event) => {
                 currentFilter = "non-alcoholic";
                 renderCocktails();
             } else {
-                // PIN required for alcoholic drinks
                 showPinPopup("alcohol");
             }
         });
     });
 
-    // === Admin button PIN ===
     document.querySelectorAll('.admin-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             showPinPopup("admin");
         });
     });
 
-    // === Drink popup logic ===
     function openCocktailPopup(cocktail) {
         const bgLayer = document.getElementById("bgLayer");
         const popup = bgLayer.querySelector(".popup-drink");

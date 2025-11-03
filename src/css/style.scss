@@ -379,9 +379,9 @@ body {
       box-shadow: var(--shadow);
 
       &:hover {
-        background: rgba(166, 120, 255, 0.15);
+        //background: rgba(166, 120, 255, 0.15);
         border-color: var(--accent);
-        transform: scale(1.05);
+        //transform: scale(1.05);
       }
 
       &.back {

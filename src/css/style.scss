@@ -499,12 +499,21 @@ button, .selection, .key {
   background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   overflow: hidden;
+  position: relative;
 
   .fill {
     height: 100%;
     background-color: var(--accent);
     border-radius: 10px;
     transition: width 0.4s ease;
+  }
+
+  &::after {
+    content: '???/???ml';
+    position: absolute;
+    top: 0;
+    right: 12px;
+    font-size: 12px;
   }
 }
 

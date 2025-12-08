@@ -55,6 +55,7 @@ def set_ingredient_level():
         'success': True,
         'ingredient_id': ingredient_id,
         'new_level': level,
+        'max_level': level,
         'message': f'Zutat {ingredient_id} auf {level}ml gesetzt'
     })
 
@@ -90,6 +91,7 @@ def refill_ingredient():
         'ingredient_id': ingredient_id,
         'added_amount': add_amount,
         'new_level': ingredient['current_level'] if ingredient else 0,
+        'max_level': ingredient['max_level'] if ingredient else 0,
         'message': f'Zutat {ingredient_id}: +{add_amount}ml hinzugefügt'
     })
 

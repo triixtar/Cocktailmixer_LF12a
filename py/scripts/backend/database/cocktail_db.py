@@ -117,7 +117,7 @@ class CocktailDatabase:
         """Status aller Zutaten (ersetzt get_bottles_status)"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute('''
-                SELECT ingredientID, ingredient, isLiquid, currentLevel
+                SELECT ingredientID, ingredient, isLiquid, currentLevel, maxLevel
                 FROM ingredients ORDER BY ingredientID
             ''')
             
@@ -128,7 +128,9 @@ class CocktailDatabase:
                     'ingredient_name': row[1],
                     'is_liquid': bool(row[2]),
                     'current_level': row[3],
+                    'max_level': row[4],
                     'pump_id': row[0] - 1 if row[2] == 1 else None  # Nur für flüssige Zutaten
+                    
                 })
             return ingredients
 
@@ -159,9 +161,9 @@ class CocktailDatabase:
         with sqlite3.connect(self.db_path) as conn:
             conn.execute('''
                 UPDATE ingredients 
-                SET currentLevel = ? 
+                SET currentLevel = ? , maxLevel = ?
                 WHERE ingredientID = ?
-            ''', (new_level, ingredient_id))
+            ''', (new_level, new_level, ingredient_id))
             print(f"🔄 Zutat {ingredient_id} auf {new_level}ml gesetzt")
 
 
@@ -184,9 +186,9 @@ class CocktailDatabase:
             
             conn.execute('''
                 UPDATE ingredients
-                SET currentLevel = ?
+                SET currentLevel = ?, maxLevel = ?
                 WHERE ingredientID = ?
-            ''', (new_level, ingredient_id))
+            ''', (new_level, max_level, ingredient_id))
             
             print(f"🔄 Zutat {ingredient_id}: {current_level}ml + {add_amount}ml = {new_level}ml")
             return True

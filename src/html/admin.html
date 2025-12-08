@@ -72,6 +72,7 @@
     // Zutaten aus Backend laden
     async function loadIngredients() {
         try {
+            console.log("called")
             const res = await fetch("http://127.0.0.1:5000/api/ingredients");
             if (!res.ok) throw new Error("Fehler beim Abrufen der Zutaten");
             ingredients = await res.json();
@@ -89,7 +90,8 @@
             id: i.ingredient_id ?? i.id ?? 0,
             name: i.ingredient_name ?? i.name ?? "Unbekannt",
             current: i.current_level ?? i.level_ml ?? 0,
-            max: i.max_level ?? i.max_level_ml ?? 2000
+            max: i.max_level ?? i.max_level_ml ?? 2000,
+            isLiquid: i.is_liquid ?? 0
         }));
 
         const sorted = [...normalized].sort((a, b) =>
@@ -97,21 +99,25 @@
         );
 
         sorted.forEach(i => {
-            const percent = Math.min(100, Math.round((i.current / i.max) * 100));
-            const el = document.createElement("div");
-            el.classList.add("liquid-item");
-            el.innerHTML = `
+            if (i.isLiquid){
+                console.log(i.max, i.name, i.isLiquid)
+                const percent = Math.min(100, Math.round((i.current / i.max) * 100));
+                const el = document.createElement("div");
+                el.classList.add("liquid-item");
+                el.innerHTML = `
                 <span class="liquid-name">${i.name}</span>
                 <div class="liquid-bar">
                     <div class="fill" style="width:${percent}%;"></div>
                 </div>
                 <span class="liquid-percent">${percent}%</span>
+                <span class="liquid-percent">${i.max} ml</span> <!--TODO: SAMUEL-->
                 <div style="display: flex; gap: 16px; margin-top: 12px;">
                     <button class="refill-btn" data-id="${i.id}">➕ Nachfüllen</button>
                     <button class="set-btn" data-id="${i.id}">✏️ Setzen</button>
                 </div>
             `;
-            list.appendChild(el);
+                list.appendChild(el);
+            }
         });
 
         // Buttons für Nachfüllen und Setzen aktivieren

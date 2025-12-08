@@ -164,19 +164,23 @@ class CocktailDatabase:
             ''', (new_level, ingredient_id))
             print(f"🔄 Zutat {ingredient_id} auf {new_level}ml gesetzt")
 
+
     def refill_ingredient(self, ingredient_id, add_amount):
         """Füllt eine Zutat additiv auf"""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute(
-                'SELECT currentLevel FROM ingredients WHERE ingredientID = ?',
+                'SELECT currentLevel, maxLevel FROM ingredients WHERE ingredientID = ?',
                 (ingredient_id,)
             )
             result = cursor.fetchone()
             if result is None:
                 return False
             
-            current_level = result[0]
-            new_level = max(0 ,current_level + add_amount)
+            current_level, max_level = result[0], result[1]
+            new_level = current_level + add_amount
+            
+            if new_level > max_level:
+                max_level = new_level
             
             conn.execute('''
                 UPDATE ingredients

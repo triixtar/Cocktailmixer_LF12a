@@ -143,8 +143,8 @@ body {
 .admin-btn {
   position: relative;
   right: 2rem;
-  background: #a2a2a2;
-  border: 2px solid rgba(159, 159, 159, 0.2);
+  background: transparent;
+  border: none;
   border-radius: 50%;
   padding: 1rem;
   cursor: pointer;
@@ -154,12 +154,10 @@ body {
   img {
     width: 32px;
     height: 32px;
-    filter: invert(1) brightness(0.8);
   }
 
   &:hover {
-    background: rgba(128, 128, 128, 0.83);
-    border-color: var(--accent);
+    background: rgba(58, 58, 58, 0.83);
     transform: scale(1.05);
   }
 }
@@ -516,7 +514,7 @@ button, .selection, .key {
 }
 
 /* Buttons */
-.flush-btn, .save-btn {
+.flush-btn, .save-btn, .refill-btn, .set-btn {
   background: var(--accent);
   color: #fff;
   border: none;
@@ -527,6 +525,10 @@ button, .selection, .key {
   transition: var(--transition);
   box-shadow: 0 0 20px rgba(166, 120, 255, 0.3);
 
+}
+
+.save-btn {
+  padding: 8px 16px !important;
 }
 
 .pin-settings {
@@ -630,7 +632,6 @@ button, .selection, .key {
   padding: 0.6rem 1.2rem;
   border-radius: var(--radius);
   cursor: pointer;
-  margin-bottom: 1rem;
   transition: var(--transition);
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   align-self: flex-end; /* bleibt schön rechtsbündig über der Liste */
@@ -760,4 +761,60 @@ button, .selection, .key {
 }
 .select-window.dragging {
   cursor: grabbing;
+}
+
+/* Basis-Style angleichen: gleiche Höhe, Font, Padding, Radius, Shadow */
+.refill-btn,
+.set-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 32px;              // gleiche Höhe wie deine anderen Buttons
+  padding: 0 14px;           // horizontales Padding wie save-btn
+  border-radius: 6px;        // anpassen falls deine Buttons z. B. 8px nutzen
+  border: none;
+
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+/* Farben */
+.refill-btn {
+  background: #4CAF50;
+  color: #fff;
+
+  &:hover {
+    background: #43a047;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.set-btn {
+  background: #ffb300;
+  color: #222;
+
+  &:hover {
+    background: #f0a000;
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Damit beide Buttons in einer Zeile bündig wirken */
+.liquid-item .refill-btn,
+.liquid-item .set-btn {
+  margin-top: 6px;            // konsistent zur Optik im Screenshot
 }

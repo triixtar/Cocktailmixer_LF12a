@@ -17,6 +17,7 @@
         <div class="selection active" data-tab="fill">Füllstände</div>
         <div class="line"></div>
         <div class="selection" data-tab="settings">Einstellungen</div>
+        <button id="backButton" style="opacity: 0; pointer-events: none;" class="back-btn">Zurück</button>
     </div>
 </nav>
 
@@ -105,8 +106,10 @@
                     <div class="fill" style="width:${percent}%;"></div>
                 </div>
                 <span class="liquid-percent">${percent}%</span>
-                <button class="refill-btn" data-id="${i.id}">➕ Nachfüllen</button>
-                <button class="set-btn" data-id="${i.id}">✏️ Setzen</button>
+                <div style="display: flex; gap: 16px; margin-top: 12px;">
+                    <button class="refill-btn" data-id="${i.id}">➕ Nachfüllen</button>
+                    <button class="set-btn" data-id="${i.id}">✏️ Setzen</button>
+                </div>
             `;
             list.appendChild(el);
         });

@@ -155,6 +155,7 @@ class CocktailDatabase:
 
     def set_ingredient_level(self, ingredient_id, new_level):
         """Setzt den Level einer Zutat auf einen bestimmten Wert"""
+        new_level = max(0, new_level)
         with sqlite3.connect(self.db_path) as conn:
             conn.execute('''
                 UPDATE ingredients 
@@ -175,7 +176,7 @@ class CocktailDatabase:
                 return False
             
             current_level = result[0]
-            new_level = max(0, min(current_level + add_amount, 1000))
+            new_level = max(0 ,current_level + add_amount)
             
             conn.execute('''
                 UPDATE ingredients

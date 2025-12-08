@@ -171,7 +171,7 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border: 2px solid rgba(166, 120, 255, 0.15);
   border-radius: var(--radius);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  //box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
   padding: 1.2rem 1rem;
   color: var(--text-color);
   cursor: pointer;
@@ -189,7 +189,7 @@ body {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 0.8rem;
-    box-shadow: 0 0 10px rgba(166, 120, 255, 0.2);
+    //box-shadow: 0 0 10px rgba(166, 120, 255, 0.2);
     transition: var(--transition);
   }
 
@@ -204,7 +204,7 @@ body {
     border-color: var(--accent);
     background: rgba(166, 120, 255, 0.1);
     //transform: translateY(-3px);
-    box-shadow: 0 0 20px rgba(166, 120, 255, 1);
+    //box-shadow: 0 0 20px rgba(166, 120, 255, 1);
 
     img {
       //transform: scale(1.05);
@@ -265,7 +265,7 @@ body {
     width: 120px;
     height: 120px;
     border-radius: var(--radius);
-    box-shadow: 0 0 15px rgba(166, 120, 255, 0.3);
+    //box-shadow: 0 0 15px rgba(166, 120, 255, 1);
   }
 }
 
@@ -298,7 +298,7 @@ body {
     margin-top: 0.5rem;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: 0 0 20px rgba(166, 120, 255, 0.3);
+    //box-shadow: 0 0 20px rgba(166, 120, 255, 1);
 
   }
 }
@@ -523,7 +523,7 @@ button, .selection, .key {
   font-size: 1.1rem;
   cursor: pointer;
   transition: var(--transition);
-  box-shadow: 0 0 20px rgba(166, 120, 255, 0.3);
+  //box-shadow: 0 0 20px rgba(166, 120, 255, 1);
 
 }
 
@@ -539,7 +539,7 @@ button, .selection, .key {
 
   input {
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(166, 120, 255, 0.3);
+    border: 1px solid rgba(166, 120, 255, 1);
     color: #fff;
     padding: 0.5rem 1rem;
     border-radius: var(--radius);
@@ -551,7 +551,7 @@ button, .selection, .key {
     &:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 10px rgba(166, 120, 255, 0.3);
+      //box-shadow: 0 0 10px rgba(166, 120, 255, 1);
     }
   }
 }
@@ -609,7 +609,7 @@ button, .selection, .key {
   cursor: pointer;
   margin-right: 1.5rem;
   transition: var(--transition);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 1);
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -633,7 +633,7 @@ button, .selection, .key {
   border-radius: var(--radius);
   cursor: pointer;
   transition: var(--transition);
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 1);
   align-self: flex-end; /* bleibt schön rechtsbündig über der Liste */
 
   &:hover {
@@ -656,7 +656,7 @@ button, .selection, .key {
   background: rgba(25, 25, 35, 0.95);
   border: 1px solid rgba(166, 120, 255, 0.25);
   border-radius: var(--radius);
-  box-shadow: 0 0 30px rgba(166, 120, 255, 0.3);
+  //box-shadow: 0 0 30px rgba(166, 120, 255, 1);
   padding: 2rem;
   display: flex;
   flex-direction: row; /* zwei Spalten */
@@ -717,7 +717,7 @@ button, .selection, .key {
       margin-top: 0.5rem;
       cursor: pointer;
       transition: var(--transition);
-      box-shadow: 0 0 20px rgba(166, 120, 255, 0.3);
+      //box-shadow: 0 0 20px rgba(166, 120, 255, 1);
     }
   }
 
@@ -780,7 +780,7 @@ button, .selection, .key {
   cursor: pointer;
   white-space: nowrap;
 
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  //box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   transition: background 0.2s ease, transform 0.15s ease;
 }
 

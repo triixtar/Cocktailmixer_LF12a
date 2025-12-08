@@ -175,7 +175,7 @@ class CocktailDatabase:
                 return False
             
             current_level = result[0]
-            new_level = max(0, min(current_level + add_amount, 1000))
+            new_level = max(0, min(current_level + add_amount, 2000))
             
             conn.execute('''
                 UPDATE ingredients

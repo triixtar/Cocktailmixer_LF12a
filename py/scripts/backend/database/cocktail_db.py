@@ -26,16 +26,17 @@ class CocktailDatabase:
             ingredient_columns = ', '.join([f'`{ingredient}`' for ingredient in self.ingredient_to_pump.keys()])
             
             if alkoholisch is None:
-                query = f'SELECT ID, Getränk, {ingredient_columns}, Alkohol FROM mixes'
+                query = f'SELECT ID, Getränk, {ingredient_columns}, Alkohol, Beschreibung FROM mixes'
                 cursor = conn.execute(query)
             else:
-                query = f'SELECT ID, Getränk, {ingredient_columns}, Alkohol FROM mixes WHERE Alkohol = ?'
+                query = f'SELECT ID, Getränk, {ingredient_columns}, Alkohol, Beschreibung FROM mixes WHERE Alkohol = ?'
                 cursor = conn.execute(query, (alkoholisch,))
             
             available_cocktails = []
             for row in cursor.fetchall():
                 cocktail_id, name = row[0], row[1]
-                alkohol_flag = row[-1]
+                alkohol_flag = row[-2]
+                description = row[-1]
                 
                 # Recipe aus Spalten-Werten erstellen
                 liquid_recipe = []    # Zutaten zum Pumpen
@@ -75,6 +76,7 @@ class CocktailDatabase:
                         'liquid_recipe': liquid_recipe,  # Zum Pumpen
                         'manual_ingredients': manual_ingredients,  # Manuell hinzufügen
                         'alkoholisch': bool(alkohol_flag),
+                        'description': description,
                         'glass_size_ml': 350,
                         'requires_manual_steps': len(manual_ingredients) > 0
                     })

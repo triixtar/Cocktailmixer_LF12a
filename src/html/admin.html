@@ -104,18 +104,19 @@
                 const percent = Math.min(100, Math.round((i.current / i.max) * 100));
                 const el = document.createElement("div");
                 el.classList.add("liquid-item");
+
                 el.innerHTML = `
-                <span class="liquid-name">${i.name}</span>
-                <div class="liquid-bar">
-                    <div class="fill" style="width:${percent}%;"></div>
-                </div>
-                <span class="liquid-percent">${percent}%</span>
-                <span class="liquid-percent">${i.max} ml</span> <!--TODO: SAMUEL-->
-                <div style="display: flex; gap: 16px; margin-top: 12px;">
-                    <button class="refill-btn" data-id="${i.id}">➕ Nachfüllen</button>
-                    <button class="set-btn" data-id="${i.id}">✏️ Setzen</button>
-                </div>
-            `;
+    <span class="liquid-name">${i.name}</span>
+    <div class="liquid-bar" style="--after-text: '${i.current}/${i.max} ml';">
+        <div class="fill" style="width:${percent}%;"></div>
+    </div>
+    <span class="liquid-percent">${percent}%</span>
+    <span class="liquid-percent">${i.max} ml</span>
+    <div style="display: flex; gap: 16px; margin-top: 12px;">
+        <button class="refill-btn" data-id="${i.id}">➕ Nachfüllen</button>
+        <button class="set-btn" data-id="${i.id}">✏️ Setzen</button>
+    </div>
+`;
                 list.appendChild(el);
             }
         });

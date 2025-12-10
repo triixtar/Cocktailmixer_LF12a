@@ -509,7 +509,7 @@ button, .selection, .key {
   }
 
   &::after {
-    content: '???/???ml';
+    content: var(--after-text, '???/???ml');
     position: absolute;
     top: 0;
     right: 12px;

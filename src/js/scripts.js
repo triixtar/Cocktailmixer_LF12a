@@ -1,6 +1,6 @@
 document.querySelectorAll("button[data-action]").forEach(button => {
     button.addEventListener("click", () => {
-        const action = button.dataset.action; // "drinkPopup" | "adminPopup"
+        const action = button.dataset.action;
         switch (action) {
             case "drinkPopup":
                 openPopup("drink");
@@ -28,7 +28,8 @@ async function getData() {
         console.error(error.message);
     }
 }
-getData()
+getData();
+
 async function orderCocktail(cocktailId) {
     const url = "http://127.0.0.1:5000/api/order";
     try {
@@ -52,33 +53,47 @@ async function orderCocktail(cocktailId) {
     }
 }
 
+let isPopupOpen = false;
+let lastPopupType = null;
+let pendingAlcoholHighlight = false;
+let syncSelectionHighlight = null;
+
 function openPopup(type) {
+    if (isPopupOpen) return;
+    isPopupOpen = true;
+    lastPopupType = type;
+
     const bgLayer = document.getElementById("bgLayer");
     const popups = bgLayer.querySelectorAll(".popup");
 
     popups.forEach(p => p.classList.remove("active"));
-
     bgLayer.classList.add("active");
 
     const popup = bgLayer.querySelector(`.popup-${type}`);
-    if (popup) {
-        popup.classList.add("active");
-    }
+    if (popup) popup.classList.add("active");
 }
 
 function closePopup() {
+    if (!isPopupOpen) return;
+    isPopupOpen = false;
+
     const bgLayer = document.getElementById("bgLayer");
     const popups = bgLayer.querySelectorAll(".popup");
 
     popups.forEach(p => p.classList.remove("active"));
     bgLayer.classList.remove("active");
+
+    if (lastPopupType === "pin" && pendingAlcoholHighlight) {
+        pendingAlcoholHighlight = false;
+        if (typeof syncSelectionHighlight === "function") syncSelectionHighlight();
+    }
+
+    lastPopupType = null;
 }
 
 const bgLayer = document.getElementById("bgLayer");
 bgLayer.addEventListener("click", (event) => {
-    if (event.target === bgLayer) {
-        closePopup();
-    }
+    if (event.target === bgLayer) closePopup();
 });
 
 // PIN Logik
@@ -90,12 +105,16 @@ bgLayer.addEventListener("click", (event) => {
     const dots = Array.from(popup.querySelectorAll('.dot'));
     const row = popup.querySelector('.numpad-row');
     let pin = "";
-    let pinPurpose = null; // "alcohol" or "admin"
+    let pinPurpose = null;
     let allCocktails = [];
-    let currentFilter = null; //
+    let currentFilter = null;
 
-    // === Backend-PINs ===
-    const pins = { alcohol: null, admin: null };
+    syncSelectionHighlight = function () {
+        const selections = document.querySelectorAll('.selection');
+        selections.forEach(s => s.classList.remove('active'));
+        if (currentFilter === "non-alcoholic") selections[0]?.classList.add('active');
+        else if (currentFilter === "alcoholic") selections[1]?.classList.add('active');
+    };
 
     const update = () => {
         dots.forEach((d, i) => d.classList.toggle("filled", i < pin.length));
@@ -145,7 +164,7 @@ bgLayer.addEventListener("click", (event) => {
             const res = await fetch("http://127.0.0.1:5000/api/check-pin", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ pin: code, purpose: pinPurpose }) // <- wichtig
+                body: JSON.stringify({ pin: code, purpose: pinPurpose })
             });
 
             const data = await res.json();
@@ -156,17 +175,16 @@ bgLayer.addEventListener("click", (event) => {
                     message: "Der eingegebene PIN ist falsch.",
                     type: "error"
                 });
-
                 resetPinPopup();
                 return;
             }
 
             if (pinPurpose === "alcohol") {
-                closePopup();
+                pendingAlcoholHighlight = false;
                 currentFilter = "alcoholic";
                 renderCocktails();
-                document.querySelectorAll('.selection').forEach(s => s.classList.remove('active'));
-                document.querySelectorAll('.selection')[1].classList.add('active');
+                syncSelectionHighlight();
+                closePopup();
             } else if (pinPurpose === "admin") {
                 window.location.href = "admin.html";
             }
@@ -182,8 +200,6 @@ bgLayer.addEventListener("click", (event) => {
         }
     }
 
-
-    // === Load Cocktails ===
     async function loadCocktails() {
         const url = "http://127.0.0.1:5000/api/cocktails";
         try {
@@ -240,13 +256,13 @@ bgLayer.addEventListener("click", (event) => {
 
     document.querySelectorAll('.selection').forEach((sel, idx) => {
         sel.addEventListener('click', () => {
-            document.querySelectorAll('.selection').forEach(s => s.classList.remove('active'));
-            sel.classList.add('active');
-
             if (idx === 0) {
+                pendingAlcoholHighlight = false;
                 currentFilter = "non-alcoholic";
                 renderCocktails();
+                syncSelectionHighlight();
             } else {
+                pendingAlcoholHighlight = true;
                 showPinPopup("alcohol");
             }
         });

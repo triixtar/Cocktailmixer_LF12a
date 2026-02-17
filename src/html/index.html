@@ -77,27 +77,12 @@
 
     </div>
 
-
-
-
 </div>
+
 <script src="../js/scripts.js"></script>
-<script>
-    const selections = document.querySelectorAll('.selection');
 
-    selections.forEach(sel => {
-        sel.addEventListener('click', () => {
-            selections.forEach(s => s.classList.remove('active'));
-            sel.classList.add('active');
-        });
-    });
+<!-- removed old inline highlight script on purpose -->
 
-
-</script>
-
-
-
-<!-- Alert Host / Container -->
 <section
         class="app-alerts"
         id="alertHost"
@@ -105,7 +90,6 @@
         aria-relevant="additions removals"
 ></section>
 
-<!-- Optional: Template (wenn ihr später JS nutzt, um Alerts zu klonen) -->
 <template id="alertTemplate">
     <article class="app-alert app-alert--info" role="status">
         <div class="app-alert__content">
@@ -120,6 +104,5 @@
 </template>
 
 <script src="../js/alerts.js"></script>
-
 </body>
 </html>

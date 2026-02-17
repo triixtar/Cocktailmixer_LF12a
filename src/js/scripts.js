@@ -428,13 +428,28 @@ bgLayer.addEventListener("click", (event) => {
 
     function openCocktailPopup(cocktail) {
         const bgLayer = document.getElementById("bgLayer");
-        const popup = bgLayer.querySelector(".popup-drink");
+        const popupdrink = bgLayer.querySelector(".popup-drink");
+        const popupingredients = bgLayer.querySelector(".popup-ingredients");
 
-        popup.querySelector(".drink-img.big").src =
+        popupdrink.querySelector(".drink-img.big").src =
             cocktail.image_path || "https://placehold.jp/3d4070/ffffff/128x128.png";
-        popup.querySelector(".drink-title").textContent = cocktail.name;
-        popup.querySelector(".drink-description").textContent =
+        popupdrink.querySelector(".drink-title").textContent = cocktail.name;
+        popupdrink.querySelector(".drink-description").textContent =
             cocktail.description || "Keine Beschreibung verfügbar.";
+
+        const list = document.getElementById("ingredientsList");
+        list.innerHTML = "";
+
+        cocktail.liquid_recipe.forEach(item => {
+            const li = document.createElement("li");
+            li.textContent = item.ingredient_name;
+            li.classList.add("ingredient-item")
+            list.appendChild(li);
+        });
+
+
+            console.log(cocktail, "cocktail log")
+            console.log(cocktail.liquid_recipe[2].ingredient_name, "test log")
 
         const orderBtn = popup.querySelector("button[onclick]");
         orderBtn.onclick = () => orderCocktail(cocktail.id);

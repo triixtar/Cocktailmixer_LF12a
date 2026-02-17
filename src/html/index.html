@@ -94,5 +94,32 @@
 
 
 </script>
+
+
+
+<!-- Alert Host / Container -->
+<section
+        class="app-alerts"
+        id="alertHost"
+        aria-live="polite"
+        aria-relevant="additions removals"
+></section>
+
+<!-- Optional: Template (wenn ihr später JS nutzt, um Alerts zu klonen) -->
+<template id="alertTemplate">
+    <article class="app-alert app-alert--info" role="status">
+        <div class="app-alert__content">
+            <div class="app-alert__title">Alertname</div>
+            <div class="app-alert__message">Alertmessage</div>
+        </div>
+
+        <button class="app-alert__close" type="button" aria-label="Alert schließen">
+            ✕
+        </button>
+    </article>
+</template>
+
+<script src="../js/alerts.js"></script>
+
 </body>
 </html>

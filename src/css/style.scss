@@ -186,7 +186,7 @@ body {
   img {
     width: 90px;
     height: 90px;
-    border-radius: 50%;
+    border-radius: 25%;
     object-fit: cover;
     margin-bottom: 0.8rem;
     //box-shadow: 0 0 10px rgba(166, 120, 255, 0.2);
@@ -677,7 +677,7 @@ button, .selection, .key {
 
   /* === Bildbereich links === */
   .image-wrap {
-    flex: 0 0 45%;
+    //flex: 0 0 45%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -698,7 +698,7 @@ button, .selection, .key {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
+    //align-items: flex-start;
     text-align: left;
     gap: 1rem;
 
@@ -826,4 +826,179 @@ button, .selection, .key {
 .liquid-item .refill-btn,
 .liquid-item .set-btn {
   margin-top: 6px;            // konsistent zur Optik im Screenshot
+}
+
+/* alerts.scss */
+/* Erwartet eure :root Variablen aus style.scss (Accent, Shadow, Radius, etc.) */
+
+.app-alerts {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  /* Mobile safe area (iOS) */
+  padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 9999;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  pointer-events: none; /* Alerts selbst aktivieren wir gleich wieder */
+}
+
+.app-alert {
+  pointer-events: auto;
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 12px;
+
+  width: min(720px, 100%);
+  margin: 0 auto;
+
+  background: rgba(20, 20, 25, 0.96);
+  border: 1px solid rgba(166, 120, 255, 0.25);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+
+  padding: 14px 14px;
+
+  animation: appAlertIn 160ms ease-out;
+  backdrop-filter: blur(6px);
+}
+
+.app-alert__content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0; /* wichtig für text-overflow */
+}
+
+.app-alert__title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.2;
+
+  /* auf kleinen Screens nicht zu groß */
+  @media (max-width: 420px) {
+    font-size: 1rem;
+  }
+}
+
+.app-alert__message {
+  font-size: 0.95rem;
+  color: var(--muted-text);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.app-alert__close {
+  background: transparent;
+  border: none;
+  color: var(--muted-text);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+
+  padding: 6px 8px;
+  border-radius: 10px;
+  transition: var(--transition);
+
+  &:hover {
+    color: var(--accent);
+    background: rgba(166, 120, 255, 0.10);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Varianten (optional) */
+.app-alert--info   { border-color: rgba(166, 120, 255, 0.35); }
+.app-alert--success{ border-color: rgba( 76, 175,  80, 0.45); }
+.app-alert--warning{ border-color: rgba(255, 179,   0, 0.55); }
+.app-alert--error  { border-color: rgba(255, 102, 102, 0.55); }
+
+@keyframes appAlertIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.99); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.app-alert__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.app-alert__input {
+  margin-top: 10px;
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(166, 120, 255, 0.25);
+  background: rgba(0,0,0,0.2);
+  color: var(--text-color);
+  outline: none;
+
+  &:focus {
+    border-color: rgba(166, 120, 255, 0.6);
+  }
+}
+.app-alert__display {
+  margin-top: 10px;
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(166, 120, 255, 0.25);
+  background: rgba(0,0,0,0.2);
+  color: var(--text-color);
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  user-select: none;
+}
+
+.app-alert__display.is-empty {
+  color: var(--muted-text);
+}
+
+.app-alert__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+/* === ALERT NUMPAD (für Number-Dialog) === */
+.app-alert {
+  .numpad-row {
+    display: grid;
+    grid-template-columns: repeat(3, 80px);
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+  }
+
+  .numpad-row .key {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(166, 120, 255, 0.2);
+    color: #fff;
+    font-size: 1.4rem;
+    font-weight: 600;
+    border-radius: var(--radius);
+    padding: 0.8rem 0;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+  }
+
+  .numpad-row .key:hover {
+    border-color: var(--accent);
+  }
+
+  .numpad-row .key.back {
+    font-size: 1.2rem;
+    color: #fff;
+  }
 }

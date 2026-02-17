@@ -136,8 +136,25 @@
 
     // Nachfüllen einzelner Zutat
     async function refillIngredient(id) {
-        const amount = prompt("Wie viel ml hinzufügen?");
-        if (!amount || isNaN(amount) || amount <= 0) return alert("Ungültige Menge.");
+        const amount = await promptNumberDialog({
+            title: "Nachfüllen",
+            message: "Wie viel ml soll hinzugefügt werden?",
+            type: "info",
+            placeholder: "z.B. 250",
+            min: 1,
+            step: "1",
+            confirmText: "Hinzufügen",
+            cancelText: "Abbrechen"
+        });
+
+        if (amount === null) return; // User abgebrochen
+
+        if (!amount || isNaN(amount) || amount <= 0) return notify({
+            title: "Ungültige Eingabe",
+            message: "Bitte eine gültige Menge größer 0 eingeben.",
+            type: "error"
+        });
+
         try {
             const res = await fetch("http://127.0.0.1:5000/api/ingredients/refill", {
                 method: "POST",
@@ -146,18 +163,43 @@
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Fehler beim Nachfüllen");
-            alert(`Zutat #${id} um ${amount}ml aufgefüllt.`);
+            notify({
+                title: "Erfolg",
+                message: `Zutat #${id} wurde um ${amount} ml aufgefüllt.`,
+                type: "success"
+            });
+
             await loadIngredients();
         } catch (err) {
             console.error(err);
-            alert("Fehler beim Nachfüllen.");
+            notify({
+                title: "Nachfüllfehler",
+                message: "Es konnte nicht Nachgefüllt werden.",
+                type: "error"
+            });
         }
     }
 
     // Setzen eines festen Levels
     async function setIngredientLevel(id) {
-        const level = prompt("Neuen Füllstand in ml eingeben:");
-        if (!level || isNaN(level) || level < 0) return alert("Ungültiger Wert.");
+        const level = await promptNumberDialog({
+            title: "Füllstand setzen",
+            message: "Neuen Füllstand in ml eingeben:",
+            type: "info",
+            placeholder: "z.B. 1200",
+            min: 0,
+            step: "1",
+            confirmText: "Setzen",
+            cancelText: "Abbrechen"
+        });
+
+        if (level === null) return;
+
+        if (!level || isNaN(level) || level < 0) return notify({
+            title: "Ungültige Eingabe",
+            message: "Bitte eine valide Menge eingeben.",
+            type: "error"
+        });
         try {
             const res = await fetch("http://127.0.0.1:5000/api/ingredients/set", {
                 method: "POST",
@@ -166,11 +208,19 @@
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Fehler beim Setzen des Levels");
-            alert(`Zutat #${id} auf ${level}ml gesetzt.`);
+            notify({
+                title: "Zutatenmenge gesetzt",
+                message: `Zutat #${id} auf ${level}ml gesetzt.`,
+                type: "success"
+            });
             await loadIngredients();
         } catch (err) {
             console.error(err);
-            alert("Fehler beim Setzen des Levels.");
+            notify({
+                title: "Ungültige Eingabe",
+                message: "Fehler beim Setzen des Levels.",
+                type: "error"
+            });
         }
     }
 
@@ -182,7 +232,15 @@
 
     // Alle Zutaten auffüllen
     refillAllBtn.addEventListener("click", async () => {
-        if (!confirm("Alle Zutaten auf 2000 ml auffüllen?")) return;
+        const ok = await confirmDialog({
+            title: "Alle Zutaten auffüllen?",
+            message: "Sollen wirklich alle Zutaten auf 2000 ml gesetzt werden?",
+            type: "warning",
+            confirmText: "Ja, auffüllen",
+            cancelText: "Abbrechen"
+        });
+        if (!ok) return;
+
         try {
             const res = await fetch("http://127.0.0.1:5000/api/ingredients/refill_all", {
                 method: "POST",
@@ -191,18 +249,30 @@
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Fehler beim Auffüllen");
-            alert("Alle Zutaten wurden aufgefüllt!");
+            notify({
+                title: "Erfolgreich aufgefüllt",
+                message: "Alle Zutaten wurden aufgefüllt.",
+                type: "success"
+            });
             ingredients = data.ingredients_status || [];
             renderIngredients();
         } catch (err) {
             console.error(err);
-            alert("Fehler beim Auffüllen der Zutaten.");
+            notify({
+                title: "Fehler bei Auffüllung",
+                message: "Fehler beim Auffüllen der Zutaten.",
+                type: "error"
+            });
         }
     });
 
     // Flush-Button (Backend-Endpoint noch hinzufügen)
     document.getElementById("flushButton").addEventListener("click", async () => {
-        alert("Alle Pumpen werden gespült... (Backend-Endpoint fehlt noch)");
+        notify({
+            title: "Pumpenspülung",
+            message: "Alle Pumpen werden gespült... (Backend-Endpoint fehlt noch)",
+            type: "success"
+        });
     });
 
     // PIN ändern
@@ -252,5 +322,30 @@
     // Initiales Laden
     loadIngredients();
 </script>
+
+
+<!-- Alert Host / Container -->
+<section
+        class="app-alerts"
+        id="alertHost"
+        aria-live="polite"
+        aria-relevant="additions removals"
+></section>
+
+<!-- Optional: Template (wenn ihr später JS nutzt, um Alerts zu klonen) -->
+<template id="alertTemplate">
+    <article class="app-alert app-alert--info" role="status">
+        <div class="app-alert__content">
+            <div class="app-alert__title">Alertname</div>
+            <div class="app-alert__message">Alertmessage</div>
+        </div>
+
+        <button class="app-alert__close" type="button" aria-label="Alert schließen">
+            ✕
+        </button>
+    </article>
+</template>
+
+<script src="../js/alerts.js"></script>
 </body>
 </html>

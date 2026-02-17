@@ -151,7 +151,12 @@ bgLayer.addEventListener("click", (event) => {
             const data = await res.json();
 
             if (!data.valid) {
-                alert("Falscher PIN!");
+                notify({
+                    title: "Zugriff verweigert",
+                    message: "Der eingegebene PIN ist falsch.",
+                    type: "error"
+                });
+
                 resetPinPopup();
                 return;
             }
@@ -168,7 +173,11 @@ bgLayer.addEventListener("click", (event) => {
 
         } catch (err) {
             console.error("PIN-Überprüfung fehlgeschlagen:", err.message);
-            alert("Fehler bei der PIN-Überprüfung.");
+            notify({
+                title: "Serverfehler",
+                message: "PIN konnte nicht überprüft werden.",
+                type: "error"
+            });
             resetPinPopup();
         }
     }

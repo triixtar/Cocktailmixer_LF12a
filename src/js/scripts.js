@@ -43,7 +43,7 @@ function setBusy(active) {
     overlay.setAttribute("aria-hidden", active ? "false" : "true");
 }
 
-function runBusyProgress(durationMs = 20000) {
+function runBusyProgress(durationMs = 17000) {
     const fill = document.getElementById("busyBarFill");
     const timeText = document.getElementById("busyTimeText");
     const start = performance.now();
@@ -105,7 +105,7 @@ async function orderCocktail(cocktailId) {
         // const result = await response.json();
 
         // Fortschritt laufen lassen (z.B. 20s)
-        await runBusyProgress(20000);
+        await runBusyProgress();
 
         // Danach zurück zum Start
         resetToStartScreen();

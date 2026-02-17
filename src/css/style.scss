@@ -1094,3 +1094,66 @@ button, .selection, .key {
     max-width: none;
   }
 }
+
+
+.busy-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000; /* über allem */
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(6px);
+
+  /* blockt alles darunter */
+  pointer-events: all;
+}
+
+.busy-overlay.is-active {
+  display: flex;
+}
+
+.busy-card {
+  width: min(520px, calc(100vw - 24px));
+  padding: 22px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(166, 120, 255, 0.25);
+  box-shadow: var(--shadow);
+  background: rgba(20, 20, 25, 0.96);
+  text-align: center;
+}
+
+.busy-title {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 1.25rem;
+  margin-bottom: 6px;
+}
+
+.busy-sub {
+  color: var(--muted-text);
+  margin-bottom: 16px;
+}
+
+.busy-bar {
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(166, 120, 255, 0.2);
+}
+
+.busy-bar__fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  transition: width 120ms linear;
+}
+
+.busy-time {
+  margin-top: 10px;
+  color: var(--muted-text);
+  font-variant-numeric: tabular-nums;
+}

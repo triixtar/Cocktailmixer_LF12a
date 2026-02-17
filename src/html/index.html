@@ -126,5 +126,21 @@
 </template>
 
 <script src="../js/alerts.js"></script>
+
+
+<!-- Busy / Progress Overlay -->
+<div id="busyOverlay" class="busy-overlay" aria-hidden="true">
+    <div class="busy-card" role="status" aria-live="polite">
+        <div class="busy-title">Drink wird gemixt…</div>
+        <div class="busy-sub">Bitte warten</div>
+
+        <div class="busy-bar">
+            <div class="busy-bar__fill" id="busyBarFill"></div>
+        </div>
+
+        <div class="busy-time" id="busyTimeText">20s</div>
+    </div>
+</div>
+
 </body>
 </html>

@@ -30,14 +30,70 @@ async function getData() {
 }
 getData();
 
+let isBusy = false;
+let busyTimer = null;
+
+function setBusy(active) {
+    isBusy = active;
+
+    const overlay = document.getElementById("busyOverlay");
+    if (!overlay) return;
+
+    overlay.classList.toggle("is-active", active);
+    overlay.setAttribute("aria-hidden", active ? "false" : "true");
+}
+
+function runBusyProgress(durationMs = 20000) {
+    const fill = document.getElementById("busyBarFill");
+    const timeText = document.getElementById("busyTimeText");
+    const start = performance.now();
+
+    // reset
+    if (fill) fill.style.width = "0%";
+    if (timeText) timeText.textContent = `${Math.ceil(durationMs / 1000)}s`;
+
+    // Timer loop
+    return new Promise((resolve) => {
+        function tick(now) {
+            const elapsed = now - start;
+            const p = Math.min(1, elapsed / durationMs);
+
+            if (fill) fill.style.width = `${Math.round(p * 100)}%`;
+            if (timeText) timeText.textContent = `${Math.max(0, Math.ceil((durationMs - elapsed) / 1000))}s`;
+
+            if (p >= 1) return resolve();
+            busyTimer = requestAnimationFrame(tick);
+        }
+        busyTimer = requestAnimationFrame(tick);
+    });
+}
+
+function resetToStartScreen() {
+    // 1) Popups zu
+    closePopup();
+
+    // 2) Optional: Filter/Selection zurücksetzen (Startscreen)
+    // Bei euch bedeutet "kein currentFilter" => Placeholder Screen :contentReference[oaicite:3]{index=3}
+    // currentFilter ist aber im IIFE scope. Wenn du dort bist: setz currentFilter = null; renderCocktails();
+
+    // 3) Schnell & zuverlässig: Seite neu laden (setzt alles sauber zurück)
+    window.location.href = "index.html";
+}
+
+
+
 async function orderCocktail(cocktailId) {
-    const url = "http://127.0.0.1:5000/api/order";
+    if (isBusy) return; // doppelklick verhindern
+
+    // UI sperren + overlay zeigen
+    setBusy(true);
+
     try {
+        // Bestellung anstoßen
+        const url = "http://127.0.0.1:5000/api/order";
         const response = await fetch(url, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ cocktail_id: cocktailId })
         });
 
@@ -45,13 +101,31 @@ async function orderCocktail(cocktailId) {
             throw new Error(`Response status: ${response.status}`);
         }
 
-        const result = await response.json();
-        console.log("Order Response:", result);
+        // Optional: response auslesen
+        // const result = await response.json();
+
+        // Fortschritt laufen lassen (z.B. 20s)
+        await runBusyProgress(20000);
+
+        // Danach zurück zum Start
+        resetToStartScreen();
 
     } catch (error) {
         console.error("Order failed:", error.message);
+
+        // Overlay wieder weg + Fehler anzeigen
+        if (busyTimer) cancelAnimationFrame(busyTimer);
+        setBusy(false);
+
+        // Wenn ihr notify habt:
+        if (typeof notify === "function") {
+            notify({ title: "Fehler", message: "Bestellung fehlgeschlagen.", type: "error" });
+        } else {
+            alert("Bestellung fehlgeschlagen.");
+        }
     }
 }
+
 
 let isPopupOpen = false;
 let lastPopupType = null;

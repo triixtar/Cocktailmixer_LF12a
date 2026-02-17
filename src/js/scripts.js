@@ -286,7 +286,7 @@ bgLayer.addEventListener("click", (event) => {
     function setPanelOpen(open) {
         wrap?.classList.toggle("show-ingredients", open);
         panel?.setAttribute("aria-hidden", open ? "false" : "true");
-        if (toggleBtn) toggleBtn.textContent = open ? "Zutaten ausblenden" : "Zutaten anzeigen";
+        if (toggleBtn) toggleBtn.textContent = open ? "Zutaten ausblenden" : "Zutaten";
     }
 
     async function loadIngredientsFor(cocktailId) {

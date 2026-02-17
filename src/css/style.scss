@@ -1059,7 +1059,7 @@ button, .selection, .key {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .ingredient-item {
@@ -1069,7 +1069,7 @@ button, .selection, .key {
   background: rgba(0, 0, 0, 0.18);
   color: var(--text-color);
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 10px;
 }
 

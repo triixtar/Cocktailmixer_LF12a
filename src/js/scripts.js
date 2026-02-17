@@ -274,6 +274,69 @@ bgLayer.addEventListener("click", (event) => {
         });
     });
 
+    let activeCocktailId = null;
+    let ingredientsLoadedFor = null;
+
+    const wrap = document.getElementById("drinkPopupWrap");
+    const toggleBtn = document.getElementById("ingredientsToggle");
+    const closeBtn = document.getElementById("ingredientsClose");
+    const ingList = document.getElementById("ingredientsList");
+    const panel = document.getElementById("ingredientsPanel");
+
+    function setPanelOpen(open) {
+        wrap?.classList.toggle("show-ingredients", open);
+        panel?.setAttribute("aria-hidden", open ? "false" : "true");
+        if (toggleBtn) toggleBtn.textContent = open ? "Zutaten ausblenden" : "Zutaten anzeigen";
+    }
+
+    async function loadIngredientsFor(cocktailId) {
+        if (!ingList) return;
+        if (ingredientsLoadedFor === cocktailId) return;
+
+        ingList.innerHTML = `<li class="ingredient-item">Lade Zutaten…</li>`;
+
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/api/cocktails/${cocktailId}/ingredients`);
+            if (!res.ok) throw new Error("fetch failed");
+            const ingredients = await res.json();
+
+            ingList.innerHTML = "";
+
+            if (!ingredients?.length) {
+                ingList.innerHTML = `<li class="ingredient-item">Keine Zutaten gefunden</li>`;
+            } else {
+                ingredients.forEach(i => {
+                    const name = i.name ?? i.ingredient_name ?? "Unbekannt";
+                    const amount = i.amount_ml ?? i.amount ?? null;
+
+                    const li = document.createElement("li");
+                    li.className = "ingredient-item";
+                    li.innerHTML = `
+          <span>${name}</span>
+          ${amount !== null ? `<span style="opacity:.7;white-space:nowrap">${amount} ml</span>` : ""}
+        `;
+                    ingList.appendChild(li);
+                });
+            }
+
+            ingredientsLoadedFor = cocktailId;
+        } catch (e) {
+            ingList.innerHTML = `<li class="ingredient-item">Fehler beim Laden</li>`;
+        }
+    }
+
+// Button Events einmalig
+    toggleBtn?.addEventListener("click", async () => {
+        const open = !wrap.classList.contains("show-ingredients");
+        setPanelOpen(open);
+        if (open && activeCocktailId) {
+            await loadIngredientsFor(activeCocktailId);
+        }
+    });
+
+    closeBtn?.addEventListener("click", () => setPanelOpen(false));
+
+
     function openCocktailPopup(cocktail) {
         const bgLayer = document.getElementById("bgLayer");
         const popup = bgLayer.querySelector(".popup-drink");

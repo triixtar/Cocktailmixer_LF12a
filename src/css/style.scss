@@ -1002,3 +1002,95 @@ button, .selection, .key {
     color: #fff;
   }
 }
+/* Wrapper für Drink + Zutaten-Panel */
+#drinkPopupWrap.popup-wrap {
+  display: none; /* wird durch .active sichtbar */
+  gap: 18px;
+  align-items: stretch;
+}
+
+/* Wenn bgLayer aktiv ist und popup-drink aktiv ist, soll wrapper sichtbar werden */
+#bgLayer.active #drinkPopupWrap {
+  display: flex;
+}
+
+/* Haupt-Card bleibt eure 720px */
+#drinkPopupWrap .popup-drink {
+  width: 720px;
+}
+
+/* Zutatenpanel rechts */
+#drinkPopupWrap .popup-ingredients {
+  width: 320px;
+  max-width: 320px;
+  padding: 16px;
+
+  background: rgba(20, 20, 25, 0.96);
+  border: 1px solid rgba(166, 120, 255, 0.25);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+
+  display: none;
+}
+
+/* sichtbar per Toggle */
+#drinkPopupWrap.show-ingredients .popup-ingredients {
+  display: block;
+}
+
+/* Head */
+.ingredients-head {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.ingredients-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* Liste */
+.ingredients-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ingredient-item {
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  border: 1px solid rgba(166, 120, 255, 0.25);
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--text-color);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* kleiner Close Button im Zutatenpanel */
+.close-btn.small {
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+}
+
+/* Mobile: Panel unter die Card */
+@media (max-width: 900px) {
+  #drinkPopupWrap {
+    flex-direction: column;
+    gap: 12px;
+  }
+  #drinkPopupWrap .popup-drink {
+    width: min(720px, 100%);
+  }
+  #drinkPopupWrap .popup-ingredients {
+    width: min(720px, 100%);
+    max-width: none;
+  }
+}

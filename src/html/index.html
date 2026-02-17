@@ -29,18 +29,40 @@
     <div class="select-window" id="cocktailList"></div>
 
     <div id="bgLayer">
-        <div class="popup popup-drink">
-            <div class="image-wrap">
-                <img class="drink-img big" draggable="false" src="https://placehold.jp/3d4070/ffffff/128x128.png" alt="">
+        <!-- NEU: Wrapper um beide Panels -->
+        <div class="popup-wrap" id="drinkPopupWrap">
+
+            <!-- bestehendes Drink-Popup -->
+            <div class="popup popup-drink">
+                <div class="image-wrap">
+                    <img class="drink-img big" draggable="false" src="https://placehold.jp/3d4070/ffffff/128x128.png" alt="">
+                </div>
+
+                <div class="drink-info">
+                    <span class="drink-title">Beispieltitel</span>
+                    <span class="drink-description">lorem ipsum ...</span>
+                    <button type="button" onclick="orderCocktail(1)">Drink bestellen</button>
+
+                    <!-- NEU: Toggle Button -->
+                    <button type="button" class="secondary-btn" style="background: mediumpurple; color: black; position: absolute; bottom: 0; right: 0; margin: 0.5rem;" id="ingredientsToggle">
+                        Zutaten
+                    </button>
+                </div>
+
+                <button class="close-btn" type="button" onclick="closePopup()">X</button>
             </div>
 
-            <div class="drink-info">
-                <span class="drink-title">Beispieltitel</span>
-                <span class="drink-description">lorem ipsum samsan orem leral lorem ipsum samsan orem leral.</span>
-                <button type="button" onclick="orderCocktail(1)">Drink bestellen</button>
+            <!-- NEU: Ingredients Panel rechts -->
+            <aside class="popup popup-ingredients" id="ingredientsPanel" aria-hidden="true">
+                <div class="ingredients-head">
+                    <span class="ingredients-title">Zutaten</span>
+                </div>
 
-            </div>
-            <button class="close-btn" type="button" onclick="closePopup()">X</button>
+                <ul class="ingredients-list" id="ingredientsList">
+                    <li class="ingredient-item">Lade Zutaten…</li>
+                </ul>
+            </aside>
+
         </div>
 
         <div class="popup popup-pin" id="pinPopup">

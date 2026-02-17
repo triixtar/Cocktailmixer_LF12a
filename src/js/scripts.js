@@ -58,6 +58,17 @@ let lastPopupType = null;
 let pendingAlcoholHighlight = false;
 let syncSelectionHighlight = null;
 
+function closeIngredientsPanel() {
+    const wrap = document.getElementById("drinkPopupWrap");
+    const panel = document.getElementById("ingredientsPanel");
+    const toggleBtn = document.getElementById("ingredientsToggle");
+
+    wrap?.classList.remove("show-ingredients");
+    panel?.setAttribute("aria-hidden", "true");
+    if (toggleBtn) toggleBtn.textContent = "Zutaten anzeigen";
+}
+
+
 function openPopup(type) {
     if (isPopupOpen) return;
     isPopupOpen = true;
@@ -83,6 +94,9 @@ function closePopup() {
     popups.forEach(p => p.classList.remove("active"));
     bgLayer.classList.remove("active");
 
+    // ✅ NEU: Zutatenpanel immer schließen
+    closeIngredientsPanel();
+
     if (lastPopupType === "pin" && pendingAlcoholHighlight) {
         pendingAlcoholHighlight = false;
         if (typeof syncSelectionHighlight === "function") syncSelectionHighlight();
@@ -90,6 +104,7 @@ function closePopup() {
 
     lastPopupType = null;
 }
+
 
 const bgLayer = document.getElementById("bgLayer");
 bgLayer.addEventListener("click", (event) => {

@@ -4,151 +4,136 @@ import os
 class CocktailDatabase:
     def __init__(self, db_path='database/mixes.db'):
         self.db_path = db_path
-        
-        # Mapping: Zutat → pump_id (basierend auf ingredientID)
-        self.ingredient_to_pump = {
-            'Cola': 1, 'Limettensaft': 2, 'Zitronensaft': 3, 'Maracujasaft': 4,
-            'Orangensaft': 5, 'Ananassaft': 6, 'Gernadine': 7, 'Kokossyrup': 8,
-            'Tonic': 9, 'Havana': 10, 'Bacardi Hell': 11, 'Wodka': 12,
-            'Gin': 13, 'Tequilla': 14, 'Pitu': 15, 'Whisky': 16,
-            'Limette': 17, 'Rohrzucker': 18, 'Minze': 19
-        }
-        
         self._check_database_exists()
 
     def _check_database_exists(self):
         if not os.path.exists(self.db_path):
             raise FileNotFoundError(f"Datenbank {self.db_path} nicht gefunden!")
 
+    def _get_conn(self):
+        return sqlite3.connect(self.db_path)
+
+    # -------------------------------------------------------------------------
+    # Cocktails
+    # -------------------------------------------------------------------------
+
     def get_available_cocktails(self, alkoholisch=None):
-        """Verfügbare Cocktails mit Unterscheidung zwischen flüssig/manuell"""
-        with sqlite3.connect(self.db_path) as conn:
-            ingredient_columns = ', '.join([f'`{ingredient}`' for ingredient in self.ingredient_to_pump.keys()])
-            
-            if alkoholisch is None:
-                query = f'SELECT ID, Getränk, {ingredient_columns}, Alkohol, Beschreibung FROM mixes'
-                cursor = conn.execute(query)
-            else:
-                query = f'SELECT ID, Getränk, {ingredient_columns}, Alkohol, Beschreibung FROM mixes WHERE Alkohol = ?'
-                cursor = conn.execute(query, (alkoholisch,))
-            
-            available_cocktails = []
-            for row in cursor.fetchall():
-                cocktail_id, name = row[0], row[1]
-                alkohol_flag = row[-2]
-                description = row[-1]
-                
-                # Recipe aus Spalten-Werten erstellen
-                liquid_recipe = []    # Zutaten zum Pumpen
-                manual_ingredients = []  # Manuelle Zutaten
-                
-                for i, ingredient in enumerate(self.ingredient_to_pump.keys()):
-                    amount_ml = row[2 + i]
-                    if amount_ml and amount_ml > 0:
-                        ingredient_id = self.ingredient_to_pump[ingredient]
-                        is_liquid = self._is_liquid_ingredient(ingredient_id)
-                        
-                        if is_liquid:
-                            # Flüssige Zutat → zum Pumpen
-                            liquid_recipe.append({
-                                'pump_id': ingredient_id - 1,  # pump_id startet bei 0
-                                'ingredient_id': ingredient_id,
-                                'ingredient_name': ingredient,
-                                'amount_ml': amount_ml,
-                                'is_liquid': True
-                            })
-                        else:
-                            # Manuelle Zutat → Hinweis für Benutzer
-                            manual_ingredients.append({
-                                'ingredient_id': ingredient_id,
-                                'ingredient_name': ingredient,
-                                'amount_ml': amount_ml,
-                                'is_liquid': False,
-                                'instruction': self._get_manual_instruction(ingredient, amount_ml)
-                            })
-                
-                # Nur verfügbare Cocktails (genug flüssige Zutaten)
-                if self._can_make_cocktail(liquid_recipe):
-                    available_cocktails.append({
-                        'id': cocktail_id,
-                        'name': name,
-                        'image_path': "../images/" + name + ".png",
-                        'liquid_recipe': liquid_recipe,  # Zum Pumpen
-                        'manual_ingredients': manual_ingredients,  # Manuell hinzufügen
-                        'alkoholisch': bool(alkohol_flag),
-                        'description': description,
-                        'glass_size_ml': 350,
-                        'requires_manual_steps': len(manual_ingredients) > 0
-                    })
-            
-            return available_cocktails
+        """Verfügbare Cocktails via JOIN über drinks → recipies → ingredients."""
+        with self._get_conn() as conn:
+            params = []
+            query = '''
+                SELECT d.ID, d.Getränk, d.Alkohol, d.Beschreibung,
+                       i.ingredientID, i.ingredient, i.isLiquid,
+                       r.level AS amount_ml,
+                       i.currentLevel
+                FROM drinks d
+                JOIN recipies r ON r.drinkID = d.ID
+                JOIN ingredients i ON i.ingredientID = r.ingredientID
+            '''
+            if alkoholisch is not None:
+                query += ' WHERE d.Alkohol = ?'
+                params.append(alkoholisch)
+            query += ' ORDER BY d.ID, i.ingredientID'
 
-    def _is_liquid_ingredient(self, ingredient_id):
-        """Prüft ob Zutat flüssig ist (isLiquid = 1)"""
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute(
-                'SELECT isLiquid FROM ingredients WHERE ingredientID = ?',
-                (ingredient_id,)
-            )
-            result = cursor.fetchone()
-            return result[0] == 1 if result else False
+            cursor = conn.execute(query, params)
+            rows = cursor.fetchall()
 
-    def _get_manual_instruction(self, ingredient_name, amount):
-        """Generiert Anweisungen für manuelle Zutaten"""
-        instructions = {
-            'Limette': f'Schneide {amount} Limettenscheibe(n) und gib sie ins Glas',
-            'Rohrzucker': f'Füge {amount}g Rohrzucker hinzu',
-            'Minze': f'Gib {amount} Minzblätter ins Glas und muddle sie leicht'
-        }
-        return instructions.get(ingredient_name, f'{ingredient_name} manuell hinzufügen: {amount} Einheit(en)')
+        # Group rows by drink
+        drinks_map = {}
+        for row in rows:
+            drink_id, name, alkohol_flag, description, \
+                ing_id, ing_name, is_liquid, amount_ml, current_level = row
 
-    def _can_make_cocktail(self, liquid_recipe):
-        """Prüfen ob genug flüssige Zutaten vorhanden"""
-        with sqlite3.connect(self.db_path) as conn:
-            for ingredient in liquid_recipe:
-                cursor = conn.execute(
-                    'SELECT currentLevel FROM ingredients WHERE ingredientID = ?',
-                    (ingredient['ingredient_id'],)
-                )
-                result = cursor.fetchone()
-                if not result or result[0] < ingredient['amount_ml']:
-                    return False
-        return True
+            if drink_id not in drinks_map:
+                drinks_map[drink_id] = {
+                    'id': drink_id,
+                    'name': name,
+                    'image_path': '../images/' + name + '.png',
+                    'alkoholisch': bool(alkohol_flag),
+                    'description': description,
+                    'glass_size_ml': 350,
+                    'liquid_recipe': [],
+                    'manual_ingredients': [],
+                    'requires_manual_steps': False,
+                    # internal tracking only
+                    '_makeable': True,
+                }
 
-    def get_ingredients_status(self):
-        """Status aller Zutaten (ersetzt get_bottles_status)"""
-        with sqlite3.connect(self.db_path) as conn:
-            cursor = conn.execute('''
-                SELECT ingredientID, ingredient, isLiquid, currentLevel, maxLevel
-                FROM ingredients ORDER BY ingredientID
-            ''')
-            
-            ingredients = []
-            for row in cursor.fetchall():
-                ingredients.append({
-                    'ingredient_id': row[0],
-                    'ingredient_name': row[1],
-                    'is_liquid': bool(row[2]),
-                    'current_level': row[3],
-                    'max_level': row[4],
-                    'pump_id': row[0] - 1 if row[2] == 1 else None  # Nur für flüssige Zutaten
-                    
+            drink = drinks_map[drink_id]
+
+            if is_liquid:
+                # Check availability
+                if current_level < amount_ml:
+                    drink['_makeable'] = False
+
+                drink['liquid_recipe'].append({
+                    'pump_id': ing_id - 1,   # pump_id starts at 0
+                    'ingredient_id': ing_id,
+                    'ingredient_name': ing_name,
+                    'amount_ml': amount_ml,
+                    'is_liquid': True,
                 })
-            return ingredients
+            else:
+                drink['manual_ingredients'].append({
+                    'ingredient_id': ing_id,
+                    'ingredient_name': ing_name,
+                    'amount_ml': amount_ml,
+                    'is_liquid': False,
+                    'instruction': self._get_manual_instruction(ing_name, amount_ml),
+                })
+                drink['requires_manual_steps'] = True
+
+        # Filter out drinks that can't be made and clean internal keys
+        available = []
+        for drink in drinks_map.values():
+            if drink.pop('_makeable'):
+                available.append(drink)
+
+        return available
 
     def get_cocktail_by_id(self, cocktail_id):
         cocktails = self.get_available_cocktails()
         return next((c for c in cocktails if c['id'] == cocktail_id), None)
 
+    def get_alcoholic_cocktails(self):
+        return self.get_available_cocktails(alkoholisch=1)
+
+    def get_non_alcoholic_cocktails(self):
+        return self.get_available_cocktails(alkoholisch=0)
+
+    # -------------------------------------------------------------------------
+    # Ingredients
+    # -------------------------------------------------------------------------
+
+    def get_ingredients_status(self):
+        """Status aller Zutaten."""
+        with self._get_conn() as conn:
+            cursor = conn.execute('''
+                SELECT ingredientID, ingredient, isLiquid, currentLevel, maxLevel
+                FROM ingredients
+                ORDER BY ingredientID
+            ''')
+            return [
+                {
+                    'ingredient_id': row[0],
+                    'ingredient_name': row[1],
+                    'is_liquid': bool(row[2]),
+                    'current_level': row[3],
+                    'max_level': row[4],
+                    'pump_id': row[0] - 1 if row[2] == 1 else None,
+                }
+                for row in cursor.fetchall()
+            ]
+
     def update_ingredient_level(self, ingredient_id, used_amount):
-        """Reduziert den Level einer Zutat nach dem Mixen"""
-        with sqlite3.connect(self.db_path) as conn:
+        """Reduziert den Level einer Zutat nach dem Mixen."""
+        with self._get_conn() as conn:
             conn.execute('''
                 UPDATE ingredients
                 SET currentLevel = MAX(0, currentLevel - ?)
                 WHERE ingredientID = ?
             ''', (used_amount, ingredient_id))
-            
+
             cursor = conn.execute(
                 'SELECT ingredient, currentLevel FROM ingredients WHERE ingredientID = ?',
                 (ingredient_id,)
@@ -158,20 +143,19 @@ class CocktailDatabase:
                 print(f"📉 {result[0]}: -{used_amount}ml (noch {result[1]}ml)")
 
     def set_ingredient_level(self, ingredient_id, new_level):
-        """Setzt den Level einer Zutat auf einen bestimmten Wert"""
+        """Setzt den Level einer Zutat auf einen bestimmten Wert."""
         new_level = max(0, new_level)
-        with sqlite3.connect(self.db_path) as conn:
+        with self._get_conn() as conn:
             conn.execute('''
-                UPDATE ingredients 
-                SET currentLevel = ? , maxLevel = ?
+                UPDATE ingredients
+                SET currentLevel = ?, maxLevel = ?
                 WHERE ingredientID = ?
             ''', (new_level, new_level, ingredient_id))
             print(f"🔄 Zutat {ingredient_id} auf {new_level}ml gesetzt")
 
-
     def refill_ingredient(self, ingredient_id, add_amount):
-        """Füllt eine Zutat additiv auf"""
-        with sqlite3.connect(self.db_path) as conn:
+        """Füllt eine Zutat additiv auf."""
+        with self._get_conn() as conn:
             cursor = conn.execute(
                 'SELECT currentLevel, maxLevel FROM ingredients WHERE ingredientID = ?',
                 (ingredient_id,)
@@ -179,25 +163,23 @@ class CocktailDatabase:
             result = cursor.fetchone()
             if result is None:
                 return False
-            
-            current_level, max_level = result[0], result[1]
+
+            current_level, max_level = result
             new_level = current_level + add_amount
-            
-            if new_level > max_level:
-                max_level = new_level
-            
+            new_max = max(max_level, new_level)
+
             conn.execute('''
                 UPDATE ingredients
                 SET currentLevel = ?, maxLevel = ?
                 WHERE ingredientID = ?
-            ''', (new_level, max_level, ingredient_id))
-            
+            ''', (new_level, new_max, ingredient_id))
+
             print(f"🔄 Zutat {ingredient_id}: {current_level}ml + {add_amount}ml = {new_level}ml")
             return True
 
     def refill_all_ingredients(self, level):
-        """Setzt alle Zutaten auf einen bestimmten Level"""
-        with sqlite3.connect(self.db_path) as conn:
+        """Setzt alle Zutaten auf einen bestimmten Level."""
+        with self._get_conn() as conn:
             cursor = conn.cursor()
             cursor.execute('UPDATE ingredients SET currentLevel = ?', (level,))
             updated_rows = cursor.rowcount
@@ -205,8 +187,18 @@ class CocktailDatabase:
             print(f"🔄 Alle Zutaten auf {level}ml gesetzt ({updated_rows} Zutaten aktualisiert)")
             return updated_rows
 
-    def get_alcoholic_cocktails(self):
-        return self.get_available_cocktails(alkoholisch=1)
+    # -------------------------------------------------------------------------
+    # Helpers
+    # -------------------------------------------------------------------------
 
-    def get_non_alcoholic_cocktails(self):
-        return self.get_available_cocktails(alkoholisch=0)
+    @staticmethod
+    def _get_manual_instruction(ingredient_name, amount):
+        instructions = {
+            'Limette':     f'Schneide {amount} Limettenscheibe(n) und gib sie ins Glas',
+            'Rohrzucker':  f'Füge {amount}g Rohrzucker hinzu',
+            'Minze':       f'Gib {amount} Minzblätter ins Glas und muddle sie leicht',
+        }
+        return instructions.get(
+            ingredient_name,
+            f'{ingredient_name} manuell hinzufügen: {amount} Einheit(en)'
+        )

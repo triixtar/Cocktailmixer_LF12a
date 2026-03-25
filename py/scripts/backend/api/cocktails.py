@@ -160,6 +160,15 @@ def test_pump(pump_id):
     success = pump_controller.test_pump(pump_id)
     return jsonify({'success': success, 'pump_id': pump_id})
 
+@cocktails_bp.route('/pump/<int:pump_id>/start', methods=['POST'])
+def pump_start(pump_id):
+    success = pump_controller.start_pump(pump_id)
+    return jsonify({'success': success, 'pump_id': pump_id})
+
+@cocktails_bp.route('/pump/<int:pump_id>/stop', methods=['POST'])
+def pump_stop(pump_id):
+    success = pump_controller.stop_pump(pump_id)
+    return jsonify({'success': success, 'pump_id': pump_id})
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PIN management

@@ -91,6 +91,28 @@ class PumpController:
         time.sleep(duration_sec)
         self.GPIO.output(pin, self.GPIO.HIGH)
         return True
+    
+    def start_pump(self, pump_id):
+        """Pumpe manuell einschalten (ohne Timeout)"""
+        if pump_id < 0 or pump_id >= len(self.pump_pins):
+            print(f"❌ Ungültige Pumpen-ID: {pump_id}")
+            return False
+
+        pin = self.pump_pins[pump_id]
+        print(f"▶️ Start Pumpe {pump_id} (GPIO {pin})")
+        self.GPIO.output(pin, self.GPIO.LOW)
+        return True
+
+    def stop_pump(self, pump_id):
+        """Pumpe manuell ausschalten"""
+        if pump_id < 0 or pump_id >= len(self.pump_pins):
+            print(f"❌ Ungültige Pumpen-ID: {pump_id}")
+            return False
+
+        pin = self.pump_pins[pump_id]
+        print(f"⏹️ Stop Pumpe {pump_id} (GPIO {pin})")
+        self.GPIO.output(pin, self.GPIO.HIGH)
+        return True
 
     def cleanup(self):
         self.GPIO.cleanup()

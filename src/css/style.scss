@@ -53,10 +53,6 @@ body {
     gap: 2rem;
     padding: 1rem 0;
   }
-
-
-
-
 }
 
 .selection {
@@ -1156,4 +1152,69 @@ button, .selection, .key {
   margin-top: 10px;
   color: var(--muted-text);
   font-variant-numeric: tabular-nums;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//TODO leon
+
+
+.pump-prime-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.pump-hold-btn {
+  padding: 18px 12px;
+  border: none;
+  border-radius: 14px;
+  background: #2e2e38;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+
+.pump-hold-btn:hover {
+  background: #3a3a48;
+}
+
+.pump-hold-btn.active {
+  background: #a678ff;
+  transform: scale(0.98);
+}
+
+.pump-hold-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

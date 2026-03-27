@@ -46,6 +46,14 @@
             <button id="savePinBtn" class="save-btn">Speichern</button>
         </div>
         <p id="pinStatus" class="status-msg"></p>
+
+        <h2 style="margin-top: 32px;">Pumpen initialisieren</h2>
+        <p style="opacity: 0.8; margin-bottom: 16px;">
+            Button gedrückt halten, damit die jeweilige Pumpe fördert. Beim Loslassen stoppt sie.
+        </p>
+
+        <div id="pumpPrimeGrid" class="pump-prime-grid"></div>
+        <p id="pumpPrimeStatus" class="status-msg"></p>
     </section>
 
     <button id="flushButton" class="flush-btn">💧 Alle Pumpen spülen</button>
@@ -69,6 +77,166 @@
     let ascending = false;
     let ingredients = [];
 
+    const pumpPrimeGrid = document.getElementById("pumpPrimeGrid");
+    const pumpPrimeStatus = document.getElementById("pumpPrimeStatus");
+
+    const PUMP_COUNT = 16;
+    const pumpStates = new Map();
+
+    function setPumpStatus(message, isError = false) {
+        if (!pumpPrimeStatus) return;
+        pumpPrimeStatus.textContent = message;
+        pumpPrimeStatus.style.color = isError ? "#ff6666" : "#a678ff";
+    }
+
+    function getPumpState(pumpId) {
+        if (!pumpStates.has(pumpId)) {
+            pumpStates.set(pumpId, {
+                running: false,
+                starting: false,
+                stopping: false
+            });
+        }
+        return pumpStates.get(pumpId);
+    }
+
+    async function startPump(pumpId, buttonEl) {
+        const state = getPumpState(pumpId);
+        if (state.running || state.starting) return;
+
+        state.starting = true;
+        buttonEl.classList.add("active");
+
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/pump/${pumpId}/start`, {
+                method: "POST"
+            });
+
+            if (!res.ok) {
+                throw new Error(`Start fehlgeschlagen für Pumpe ${pumpId}`);
+            }
+
+            state.running = true;
+            setPumpStatus(`Pumpe ${pumpId} läuft...`);
+        } catch (err) {
+            console.error(err);
+            buttonEl.classList.remove("active");
+            setPumpStatus(`Pumpe ${pumpId} konnte nicht gestartet werden.`, true);
+        } finally {
+            state.starting = false;
+        }
+    }
+
+    async function stopPump(pumpId, buttonEl) {
+        const state = getPumpState(pumpId);
+
+        if (state.starting) {
+            const waitUntil = Date.now() + 1500;
+            while (state.starting && Date.now() < waitUntil) {
+                await new Promise(resolve => setTimeout(resolve, 50));
+            }
+        }
+
+        if ((!state.running && !state.starting) || state.stopping) {
+            buttonEl.classList.remove("active");
+            return;
+        }
+
+        state.stopping = true;
+
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/pump/${pumpId}/stop`, {
+                method: "POST"
+            });
+
+            if (!res.ok) {
+                throw new Error(`Stop fehlgeschlagen für Pumpe ${pumpId}`);
+            }
+
+            state.running = false;
+            setPumpStatus(`Pumpe ${pumpId} gestoppt.`);
+        } catch (err) {
+            console.error(err);
+            setPumpStatus(`Pumpe ${pumpId} konnte nicht gestoppt werden.`, true);
+        } finally {
+            state.stopping = false;
+            buttonEl.classList.remove("active");
+        }
+    }
+
+    function bindHoldPumpButton(buttonEl, pumpId) {
+        let pressed = false;
+
+        const pressStart = async (event) => {
+            event.preventDefault();
+            if (pressed) return;
+            pressed = true;
+            await startPump(pumpId, buttonEl);
+        };
+
+        const pressEnd = async () => {
+            if (!pressed) return;
+            pressed = false;
+            await stopPump(pumpId, buttonEl);
+        };
+
+        buttonEl.addEventListener("pointerdown", pressStart);
+        buttonEl.addEventListener("pointerup", pressEnd);
+        buttonEl.addEventListener("pointerleave", pressEnd);
+        buttonEl.addEventListener("pointercancel", pressEnd);
+
+        window.addEventListener("mouseup", pressEnd);
+        window.addEventListener("touchend", pressEnd);
+    }
+
+    function renderPumpPrimeButtons() {
+        if (!pumpPrimeGrid) return;
+
+        pumpPrimeGrid.innerHTML = "";
+
+        for (let pumpId = 1; pumpId <= PUMP_COUNT; pumpId++) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "pump-hold-btn";
+            btn.textContent = `Pumpe ${pumpId}`;
+            btn.setAttribute("data-pump-id", pumpId);
+
+            bindHoldPumpButton(btn, pumpId);
+            pumpPrimeGrid.appendChild(btn);
+        }
+    }
+
+    async function stopAllRunningPumps() {
+        const stopPromises = [];
+
+        document.querySelectorAll(".pump-hold-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        for (let pumpId = 1; pumpId <= PUMP_COUNT; pumpId++) {
+            const state = getPumpState(pumpId);
+            if (state.running || state.starting) {
+                stopPromises.push(
+                    fetch(`http://127.0.0.1:5000/pump/${pumpId}/stop`, {
+                        method: "POST"
+                    }).catch(err => console.error(`Stop Fehler Pumpe ${pumpId}:`, err))
+                );
+                state.running = false;
+                state.starting = false;
+                state.stopping = false;
+            }
+        }
+
+        await Promise.allSettled(stopPromises);
+    }
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stopAllRunningPumps();
+    });
+
+    window.addEventListener("beforeunload", () => {
+        stopAllRunningPumps();
+    });
     // Zutaten aus Backend laden
     async function loadIngredients() {
         try {
@@ -319,7 +487,10 @@
         window.location.href = "index.html";
     });
 
+
+
     // Initiales Laden
+    renderPumpPrimeButtons();
     loadIngredients();
 </script>
 

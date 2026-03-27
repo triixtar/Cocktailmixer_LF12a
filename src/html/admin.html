@@ -52,7 +52,14 @@
             Button gedrückt halten, damit die jeweilige Pumpe fördert. Beim Loslassen stoppt sie.
         </p>
 
-        <div id="pumpPrimeGrid" class="pump-prime-grid"></div>
+        <div id="pumpPrimeGrid"
+             class="pump-prime-grid"
+             style="
+                      display: grid;
+                      grid-template-columns: repeat(4, minmax(120px, 1fr));
+                      gap: 12px;
+                      margin-top: 16px;"
+        ></div>
         <p id="pumpPrimeStatus" class="status-msg"></p>
     </section>
 
@@ -237,6 +244,7 @@
     window.addEventListener("beforeunload", () => {
         stopAllRunningPumps();
     });
+
     // Zutaten aus Backend laden
     async function loadIngredients() {
         try {
@@ -267,7 +275,7 @@
         );
 
         sorted.forEach(i => {
-            if (i.isLiquid){
+            if (i.isLiquid) {
                 console.log(i.max, i.name, i.isLiquid)
                 const percent = Math.min(100, Math.round((i.current / i.max) * 100));
                 const el = document.createElement("div");
@@ -326,8 +334,8 @@
         try {
             const res = await fetch("http://127.0.0.1:5000/api/ingredients/refill", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ingredient_id: id, amount: parseFloat(amount) })
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ingredient_id: id, amount: parseFloat(amount)})
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Fehler beim Nachfüllen");
@@ -371,8 +379,8 @@
         try {
             const res = await fetch("http://127.0.0.1:5000/api/ingredients/set", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ingredient_id: id, level: parseFloat(level) })
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ingredient_id: id, level: parseFloat(level)})
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Fehler beim Setzen des Levels");
@@ -412,8 +420,8 @@
         try {
             const res = await fetch("http://127.0.0.1:5000/api/ingredients/refill_all", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ level: 2000 })
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({level: 2000})
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Fehler beim Auffüllen");
@@ -461,8 +469,8 @@
         try {
             const response = await fetch("http://127.0.0.1:5000/api/change-pin", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ old_pin: oldPin, new_pin: newPin })
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({old_pin: oldPin, new_pin: newPin})
             });
             const result = await response.json();
 
@@ -486,7 +494,6 @@
     document.getElementById("backButton").addEventListener("click", () => {
         window.location.href = "index.html";
     });
-
 
 
     // Initiales Laden

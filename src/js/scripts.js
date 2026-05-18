@@ -425,7 +425,6 @@ bgLayer.addEventListener("click", (event) => {
 
     closeBtn?.addEventListener("click", () => setPanelOpen(false));
 
-
     function openCocktailPopup(cocktail) {
         const bgLayer = document.getElementById("bgLayer");
         const popupdrink = bgLayer.querySelector(".popup-drink");

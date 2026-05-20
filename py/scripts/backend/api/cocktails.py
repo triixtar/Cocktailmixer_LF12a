@@ -170,6 +170,18 @@ def pump_stop(pump_id):
     success = pump_controller.stop_pump(pump_id)
     return jsonify({'success': success, 'pump_id': pump_id})
 
+@cocktails_bp.route('/pump/maintenance', methods=['POST'])
+def pump_maintenance():
+    def run_all():
+        for pump_id in range(len(pump_controller.pump_pins)):
+            pump_controller.start_pump(pump_id)
+        time.sleep(60)
+        for pump_id in range(len(pump_controller.pump_pins)):
+            pump_controller.stop_pump(pump_id)
+
+    threading.Thread(target=run_all).start()
+    return jsonify({'status': 'running', 'message': 'Alle Pumpen laufen für 60 Sekunden'})
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PIN management
 # ─────────────────────────────────────────────────────────────────────────────

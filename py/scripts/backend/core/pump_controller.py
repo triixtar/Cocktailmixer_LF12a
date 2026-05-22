@@ -5,9 +5,8 @@ class PumpController:
     def __init__(self):
         # GPIO-Pins für eure 19 Pumpen (0-18)
         self.pump_pins = [
-            4, 14, 15, 18, 17, 27, 22, 23,    # Pumpen 0-7
-            24, 25, 5, 6, 12, 13, 19, 16, 26, 20,     # Pumpen 8-15
-            21, 7, 8                          # Pumpen 16-18 (Limette, Rohrzucker, Minze)
+            24, 22, 27, 17, 18, 15, 14, 4,    # Pumpen 0-7
+            5, 16, 26, 6, 11, 9, 10, 25,      # Pumpen 8-15
         ]
         
         try:
